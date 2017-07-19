@@ -180,14 +180,17 @@ public final class Invoker implements Command {
 
 	private void setupArguments(Context context) {
 		for (ArgumentDefinition definition : arguments) {
-			setupArgument(context, definition);
+			ResolutionRequest request = new ResolutionRequest();
+			request.setContext(context);
+			request.setDefinition(definition);
+			setupArgument(request);
 		}
 	}
 
-	private void setupArgument(Context context, ArgumentDefinition definition) {
-		List<String> enteredArguments = context.getArguments().get(command);
+	private void setupArgument(ResolutionRequest request) {
+		List<String> enteredArguments = request.getContext().getArguments().get(command);
 		if (enteredArguments == null) {
-			missingArgument(definition);
+			missingArgument(request.getDefinition());
 			return;
 		}
 
@@ -195,16 +198,19 @@ public final class Invoker implements Command {
 
 		while (arguments.hasNext()) {
 			String argument = arguments.next();
-			Object resolved = Resolver.resolve(definition, argument);
+			request.setArgument(argument);
+			Object resolved = Resolver.resolve(request);
 			if (resolved == null) {
 				continue;
 			}
 			arguments.remove();
-			Try.toRun(() -> FieldUtils.writeField(definition.getField(), context.getCommand(), resolved));
+			Try.toRun(() ->
+				FieldUtils.writeField(request.getDefinition().getField(),
+						request.getContext().getCommand(), resolved));
 			return;
 		}
 
-		missingArgument(definition);
+		missingArgument(request.getDefinition());
 	}
 
 	private void missingArgument(ArgumentDefinition definition) {

@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
-public abstract class Resolver<T> implements BiFunction<ArgumentDefinition, String, T> {
+public abstract class Resolver<T> implements Function<ResolutionRequest, T> {
 
 	private static final Map<Type, List<Resolver<?>>> RESOLVERS = new HashMap<>();
 
@@ -32,14 +32,14 @@ public abstract class Resolver<T> implements BiFunction<ArgumentDefinition, Stri
 		resolvers.remove(resolver);
 	}
 
-	public static Object resolve(ArgumentDefinition definition, String argument) {
-		List<Resolver<?>> resolvers = RESOLVERS.get(definition.getType());
+	public static Object resolve(ResolutionRequest request) {
+		List<Resolver<?>> resolvers = RESOLVERS.get(request.getDefinition().getType());
 		if (resolvers == null) {
 			return null;
 		}
 
 		for (Resolver<?> resolver : resolvers) {
-			Object resolved = resolver.apply(definition, argument);
+			Object resolved = resolver.apply(request);
 			if (resolved != null) {
 				return resolved;
 			}

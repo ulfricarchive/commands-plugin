@@ -244,8 +244,8 @@ class InvokerTest extends ContextTestSuite {
 		}
 
 		@Override
-		public String apply(ArgumentDefinition definition, String argument) {
-			return argument.startsWith("Mr.") ? argument : null;
+		public String apply(ResolutionRequest request) {
+			return request.getArgument().startsWith("Mr.") ? request.getArgument() : null;
 		}
 		
 	}

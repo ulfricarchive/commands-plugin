@@ -7,10 +7,9 @@ public class IdentityResolver extends Resolver<String> {
 	}
 
 	@Override
-	public String apply(ArgumentDefinition definition, String value) {
-		System.out.println(1);
-		if (definition.getField().getAnnotations().length == 1) {
-			return value;
+	public String apply(ResolutionRequest request) {
+		if (request.getDefinition().getField().getAnnotations().length == 1) {
+			return request.getArgument();
 		}
 		return null;
 	}

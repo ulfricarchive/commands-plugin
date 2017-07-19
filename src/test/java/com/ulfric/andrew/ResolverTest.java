@@ -13,14 +13,17 @@ class ResolverTest {
 	void testResolveButResolverMissing() {
 		ArgumentDefinition definition = new ArgumentDefinition();
 		definition.setType(IllegalType.class);
-		Truth.assertThat(Resolver.resolve(definition, "anything")).isNull();
+		ResolutionRequest request = new ResolutionRequest();
+		request.setDefinition(definition);
+		request.setArgument("anything");
+		Truth.assertThat(Resolver.resolve(request)).isNull();
 	}
 
 	@Test
 	void testCodeCoverage() { // TODO extract these if possible
 		Resolver.remove(new Resolver<Object>(Object.class) {
 			@Override
-			public Object apply(ArgumentDefinition definition, String argument) {
+			public Object apply(ResolutionRequest request) {
 				return null;
 			}
 		});
