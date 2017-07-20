@@ -33,7 +33,7 @@ public final class Invoker implements Command {
 		return INVOKERS.computeIfAbsent(command, Invoker::new);
 	}
 
-	final Class<? extends Command> command;
+	private final Class<? extends Command> command;
 	private final Invoker superCommand;
 	private final Predicate<Sender> useCheck;
 	private final List<ArgumentDefinition> arguments;
@@ -91,6 +91,10 @@ public final class Invoker implements Command {
 
 	private void registerWithParent(String name) {
 		superCommand.subcommands.put(name, this);
+	}
+
+	public Class<? extends Command> getCommand() {
+		return command;
 	}
 
 	public void unregisterWithParent() {

@@ -19,7 +19,7 @@ public abstract class SkeletalRegistry implements Registry {
 
 		if (command instanceof Invoker) {
 			Invoker invoker = (Invoker) command;
-			context.getArguments().put(invoker.command, context.getArguments().get(Command.class));
+			context.getArguments().put(invoker.getCommand(), context.getArguments().get(Command.class));
 			dispatch((Invoker) command, context);
 			return;
 		}
@@ -29,7 +29,7 @@ public abstract class SkeletalRegistry implements Registry {
 
 	private void dispatch(Invoker invoker, Context context) {
 		Map<Class<? extends Command>, List<String>> contextArguments = context.getArguments();
-		List<String> arguments = contextArguments.get(invoker.command);
+		List<String> arguments = contextArguments.get(invoker.getCommand());
 		if (CollectionUtils.isEmpty(arguments)) {
 			invoker.run(context);
 			return;
@@ -40,9 +40,9 @@ public abstract class SkeletalRegistry implements Registry {
 			Invoker child = invoker.getChild(argument);
 			if (child != null) {
 				if (x != 0) {
-					contextArguments.put(invoker.command, arguments.subList(0, x));
+					contextArguments.put(invoker.getCommand(), arguments.subList(0, x));
 				}
-				contextArguments.put(child.command, arguments.subList(x + 1, l));
+				contextArguments.put(child.getCommand(), arguments.subList(x + 1, l));
 				dispatch(child, context);
 				return;
 			}
