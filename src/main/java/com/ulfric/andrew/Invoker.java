@@ -139,7 +139,7 @@ public final class Invoker implements Command {
 
 	public String getDescription() {
 		Description description = command.getAnnotation(Description.class); // TODO stereotype
-		return description == null ? null : description.value();
+		return description == null ? "" : description.value();
 	}
 
 	public boolean shouldRunOnMainThread() {

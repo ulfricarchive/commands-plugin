@@ -50,7 +50,7 @@ class InvokerTest extends ContextTestSuite {
 
 	@Test
 	void testGetDescriptionOfNoUsage() {
-		Truth.assertThat(Invoker.of(Hello.class).getDescription()).isNull();
+		Truth.assertThat(Invoker.of(Hello.class).getDescription()).isEmpty();
 	}
 
 	@Test
