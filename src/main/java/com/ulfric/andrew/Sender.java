@@ -12,4 +12,6 @@ public interface Sender extends Named {
 
 	void sendMessage(String message);
 
+	Object handle();
+
 }
