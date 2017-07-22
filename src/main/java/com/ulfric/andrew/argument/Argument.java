@@ -1,4 +1,4 @@
-package com.ulfric.andrew;
+package com.ulfric.andrew.argument;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;

@@ -1,4 +1,4 @@
-package com.ulfric.andrew;
+package com.ulfric.andrew.argument;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

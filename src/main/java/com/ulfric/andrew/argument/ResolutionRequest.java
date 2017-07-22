@@ -1,5 +1,6 @@
-package com.ulfric.andrew;
+package com.ulfric.andrew.argument;
 
+import com.ulfric.andrew.Context;
 import com.ulfric.commons.value.Bean;
 
 public class ResolutionRequest extends Bean {

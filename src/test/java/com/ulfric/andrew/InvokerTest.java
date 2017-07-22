@@ -8,6 +8,10 @@ import org.mockito.Mockito;
 
 import com.google.common.truth.Truth;
 
+import com.ulfric.andrew.argument.Argument;
+import com.ulfric.andrew.argument.MissingArgumentException;
+import com.ulfric.andrew.argument.ResolutionRequest;
+import com.ulfric.andrew.argument.Resolver;
 import com.ulfric.commons.naming.Name;
 import com.ulfric.veracity.Veracity;
 

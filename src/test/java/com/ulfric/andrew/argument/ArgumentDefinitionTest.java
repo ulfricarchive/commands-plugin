@@ -1,4 +1,4 @@
-package com.ulfric.andrew;
+package com.ulfric.andrew.argument;
 
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
