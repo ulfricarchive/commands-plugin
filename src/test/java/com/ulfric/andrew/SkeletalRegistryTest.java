@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import com.google.common.truth.Truth;
@@ -20,19 +21,19 @@ class SkeletalRegistryTest extends ContextTestSuite {
 	@BeforeEach
 	void setup() {
 		registry = Mockito.mock(SkeletalRegistry.class);
-		Mockito.doCallRealMethod().when(registry).dispatch(Mockito.any());
+		Mockito.doCallRealMethod().when(registry).dispatch(Matchers.any());
 	}
 
 	@Test
 	void testCommandNotFound() {
-		Mockito.when(registry.getCommand(Mockito.anyString())).thenReturn(null);
+		Mockito.when(registry.getCommand(Matchers.anyString())).thenReturn(null);
 		Veracity.assertThat(() -> registry.dispatch(context)).runsWithoutExceptions();
 	}
 
 	@Test
 	void testCommandNotInvoker() {
 		Command command = Mockito.mock(Command.class);
-		Mockito.when(registry.getCommand(Mockito.anyString())).thenReturn(command);
+		Mockito.when(registry.getCommand(Matchers.anyString())).thenReturn(command);
 		registry.dispatch(context);
 		Mockito.verify(command, Mockito.times(1)).run(context);
 	}
@@ -40,7 +41,7 @@ class SkeletalRegistryTest extends ContextTestSuite {
 	@Test
 	void testCommandWithoutArguments() {
 		Command command = Invoker.of(Hello.class);
-		Mockito.when(registry.getCommand(Mockito.anyString())).thenReturn(command);
+		Mockito.when(registry.getCommand(Matchers.anyString())).thenReturn(command);
 		registry.dispatch(context);
 		Truth.assertThat(context).isSameAs(Hello.last);
 	}
@@ -49,7 +50,7 @@ class SkeletalRegistryTest extends ContextTestSuite {
 	void testCommand() {
 		context.getArguments().put(Command.class, Arrays.asList("one", "two", "three"));
 		Command command = Invoker.of(Hello.class);
-		Mockito.when(registry.getCommand(Mockito.anyString())).thenReturn(command);
+		Mockito.when(registry.getCommand(Matchers.anyString())).thenReturn(command);
 		registry.dispatch(context);
 		Truth.assertThat(context).isSameAs(Hello.last);
 	}
@@ -59,7 +60,7 @@ class SkeletalRegistryTest extends ContextTestSuite {
 		context.getArguments().put(Command.class, Arrays.asList("world"));
 		Command command = Invoker.of(Hello.class);
 		Invoker.of(World.class).registerWithParent();
-		Mockito.when(registry.getCommand(Mockito.anyString())).thenReturn(command);
+		Mockito.when(registry.getCommand(Matchers.anyString())).thenReturn(command);
 		registry.dispatch(context);
 		Truth.assertThat(context).isSameAs(World.last);
 		Invoker.of(World.class).unregisterWithParent();
@@ -70,7 +71,7 @@ class SkeletalRegistryTest extends ContextTestSuite {
 		context.getArguments().put(Command.class, Arrays.asList("helloarg", "world", "worldarg"));
 		Command command = Invoker.of(Hello.class);
 		Invoker.of(World.class).registerWithParent();
-		Mockito.when(registry.getCommand(Mockito.anyString())).thenReturn(command);
+		Mockito.when(registry.getCommand(Matchers.anyString())).thenReturn(command);
 		registry.dispatch(context);
 		Truth.assertThat(World.last.getArguments().get(Hello.class)).containsExactly("helloarg");
 		Truth.assertThat(World.last.getArguments().get(World.class)).containsExactly("worldarg");
