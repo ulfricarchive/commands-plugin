@@ -4,6 +4,7 @@ import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
 import com.ulfric.commons.naming.Name;
+import com.ulfric.dragoon.reflect.Classes;
 import com.ulfric.dragoon.reflect.Instances;
 import com.ulfric.tryto.Try;
 
@@ -16,7 +17,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Predicate;
 
 public final class Invoker implements Command {
 
@@ -35,25 +35,23 @@ public final class Invoker implements Command {
 
 	private final Class<? extends Command> command;
 	private final Invoker superCommand;
-	private final Predicate<Sender> useCheck;
+	private final List<String> permissions;
 	private final List<ArgumentDefinition> arguments;
 	private final Map<String, Invoker> subcommands = new CaseInsensitiveMap<>();
 
 	private Invoker(Class<? extends Command> command) {
 		this.command = command;
-		this.superCommand = INVOKERS.get(command.getSuperclass());
-		this.useCheck = createUseCheck();
+		this.superCommand = superCommand();
 		this.arguments = createArgumentDefinitions();
+		this.permissions = createPermissions();
 	}
 
-	private Predicate<Sender> createUseCheck() {
-		String permission = getPermission();
-
-		if (permission != null) {
-			return sender -> sender.hasPermission(permission);
+	private Invoker superCommand() {
+		Class<?> superClass = Classes.getNonDynamic(command.getSuperclass()); // TODO is the non-dynamic needed?
+		if (!Command.class.isAssignableFrom(superClass)) {
+			return null;
 		}
-
-		return sender -> true;
+		return Invoker.of(superClass.asSubclass(Command.class));
 	}
 
 	private List<ArgumentDefinition> createArgumentDefinitions() {
@@ -77,9 +75,9 @@ public final class Invoker implements Command {
 		return arguments;
 	}
 
-	private String getPermission() {
+	private List<String> createPermissions() { // TODO support repeatable
 		Permission permission = command.getAnnotation(Permission.class); // TODO support stereotype
-		return permission == null ? null : permission.value();
+		return permission == null ? Collections.emptyList() : Collections.singletonList(permission.value());
 	}
 
 	public void registerWithParent() {
@@ -168,18 +166,19 @@ public final class Invoker implements Command {
 	}
 
 	private void prerun(Context context) {
-		ensureAllowed(context);
+		runPermissionsChecks(context);
 		setupArguments(context);
 	}
 
-	private void ensureAllowed(Context context) {
-		if (isNotAllowed(context)) {
-			throw new MissingPermissionException();
-		}
-	}
+	private void runPermissionsChecks(Context context) {
+		Sender sender = context.getSender();
+		for (String node : permissions) {
+			if (sender.hasPermission(node)) {
+				continue;
+			}
 
-	private boolean isNotAllowed(Context context) {
-		return !useCheck.test(context.getSender());
+			throw new MissingPermissionException(node);
+		}
 	}
 
 	private void setupArguments(Context context) {

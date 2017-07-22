@@ -2,8 +2,8 @@ package com.ulfric.andrew;
 
 public class MissingPermissionException extends CommandException {
 
-	public MissingPermissionException() {
-		super("command-no-permission");
+	public MissingPermissionException(String node) {
+		super(node);
 	}
 
 }
