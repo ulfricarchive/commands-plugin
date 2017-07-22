@@ -2,6 +2,7 @@ package com.ulfric.andrew;
 
 import org.apache.commons.collections4.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -40,9 +41,9 @@ public abstract class SkeletalRegistry implements Registry {
 			Invoker child = invoker.getChild(argument);
 			if (child != null) {
 				if (x != 0) {
-					contextArguments.put(invoker.getCommand(), arguments.subList(0, x));
+					contextArguments.put(invoker.getCommand(), new ArrayList<>(arguments.subList(0, x)));
 				}
-				contextArguments.put(child.getCommand(), arguments.subList(x + 1, l));
+				contextArguments.put(child.getCommand(), new ArrayList<>(arguments.subList(x + 1, l)));
 				dispatch(child, context);
 				return;
 			}

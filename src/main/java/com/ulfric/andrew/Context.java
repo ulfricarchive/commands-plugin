@@ -32,8 +32,8 @@ public class Context extends Bean {
 		return arguments;
 	}
 
-	public void setArguments(Map<Class<? extends Command>, List<String>> enteredArguments) {
-		this.arguments = enteredArguments;
+	public void setArguments(Map<Class<? extends Command>, List<String>> arguments) {
+		this.arguments = arguments;
 	}
 
 	public Command getCommand() {
