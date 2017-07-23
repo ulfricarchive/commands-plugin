@@ -14,6 +14,7 @@ public abstract class Resolver<T> implements Function<ResolutionRequest, T> {
 
 	static {
 		register(new IdentityResolver());
+		register(new MatchResolver());
 	}
 
 	public static void register(Resolver<?> resolver) {
