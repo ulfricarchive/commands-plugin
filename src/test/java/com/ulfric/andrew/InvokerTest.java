@@ -146,6 +146,20 @@ class InvokerTest extends ContextTestSuite {
 	}
 
 	@Test
+	void testOfAbstract() {
+		Veracity.assertThat(() -> Invoker.of(AbstractParent.class)).doesThrow(IllegalArgumentException.class);
+	}
+
+	@Test
+	void testChildOfAbstract() {
+		Invoker parent = Invoker.of(AbstractParentConcreteBase.class);
+		Invoker child = Invoker.of(ChildOfAbstractParent.class);
+		child.registerWithParent();
+		Truth.assertThat(parent.getChild(child.getName())).isSameAs(child);
+		child.unregisterWithParent();
+	}
+
+	@Test
 	void testCodeCoverage() { // TODO some of this can be extracted to real tests
 		Invoker.of(Hello.class).registerWithParent();
 		Invoker.of(Hello.class).unregisterWithParent();
@@ -252,7 +266,24 @@ class InvokerTest extends ContextTestSuite {
 		public String apply(ResolutionRequest request) {
 			return request.getArgument().startsWith("Mr.") ? request.getArgument() : null;
 		}
+	}
+
+	@Name("concrete")
+	static class AbstractParentConcreteBase implements Command {
+		@Override
+		public void run(Context context) {
+		}
+	}
+
+	abstract static class AbstractParent extends AbstractParentConcreteBase {
 		
+	}
+
+	@Name("child")
+	static class ChildOfAbstractParent extends AbstractParent {
+		@Override
+		public void run(Context context) {
+		}
 	}
 
 }

@@ -14,6 +14,7 @@ import com.ulfric.dragoon.reflect.Instances;
 import com.ulfric.tryto.Try;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,6 +36,10 @@ public final class Invoker implements Command {
 			throw new IllegalArgumentException("Cannot create an invoker of invoker");
 		}
 
+		if (Modifier.isAbstract(command.getModifiers())) { // TODO static utility
+			throw new IllegalArgumentException("Command must not be abstract");
+		}
+
 		return INVOKERS.computeIfAbsent(command, Invoker::new);
 	}
 
@@ -52,9 +57,16 @@ public final class Invoker implements Command {
 	}
 
 	private Invoker superCommand() {
-		Class<?> superClass = Classes.getNonDynamic(command.getSuperclass()); // TODO is the non-dynamic needed?
+		Class<?> superClass = Classes.getNonDynamic(command.getSuperclass());
+		return superCommand(superClass);
+	}
+
+	private Invoker superCommand(Class<?> superClass) {
 		if (!Command.class.isAssignableFrom(superClass)) {
 			return null;
+		}
+		if (Modifier.isAbstract(superClass.getModifiers())) { // TODO static utility
+			return superCommand(superClass.getSuperclass());
 		}
 		return Invoker.of(superClass.asSubclass(Command.class));
 	}
