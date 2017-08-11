@@ -2,8 +2,6 @@ package com.ulfric.andrew;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.platform.runner.JUnitPlatform;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
@@ -13,7 +11,6 @@ import com.ulfric.veracity.Veracity;
 
 import java.util.Arrays;
 
-@RunWith(JUnitPlatform.class)
 class SkeletalRegistryTest extends ContextTestSuite {
 
 	private SkeletalRegistry registry;

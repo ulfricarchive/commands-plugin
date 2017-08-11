@@ -1,8 +1,6 @@
 package com.ulfric.andrew;
 
 import org.junit.jupiter.api.Test;
-import org.junit.platform.runner.JUnitPlatform;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
@@ -21,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
 
-@RunWith(JUnitPlatform.class)
 class InvokerTest extends ContextTestSuite {
 
 	@Test

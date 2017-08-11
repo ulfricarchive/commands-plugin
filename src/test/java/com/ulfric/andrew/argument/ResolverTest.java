@@ -1,12 +1,9 @@
 package com.ulfric.andrew.argument;
 
 import org.junit.jupiter.api.Test;
-import org.junit.platform.runner.JUnitPlatform;
-import org.junit.runner.RunWith;
 
 import com.google.common.truth.Truth;
 
-@RunWith(JUnitPlatform.class)
 class ResolverTest {
 
 	@Test
