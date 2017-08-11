@@ -3,7 +3,7 @@ package com.ulfric.andrew;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import com.google.common.truth.Truth;
@@ -31,14 +31,14 @@ class InvokerTest extends ContextTestSuite {
 
 	@Test
 	void testOfPermissionCheckFails() {
-		Mockito.when(context.getSender().hasPermission(Matchers.anyString())).thenReturn(false);
+		Mockito.when(context.getSender().hasPermission(ArgumentMatchers.anyString())).thenReturn(false);
 		Veracity.assertThat(() -> Invoker.of(PermissionCheck.class).run(context))
 			.doesThrow(MissingPermissionException.class);
 	}
 
 	@Test
 	void testOfPermissionCheck() {
-		Mockito.when(context.getSender().hasPermission(Matchers.anyString())).thenReturn(true);
+		Mockito.when(context.getSender().hasPermission(ArgumentMatchers.anyString())).thenReturn(true);
 		Veracity.assertThat(() -> Invoker.of(PermissionCheck.class).run(context))
 			.runsWithoutExceptions();
 	}
