@@ -11,7 +11,7 @@ import com.ulfric.andrew.argument.Resolver;
 import com.ulfric.commons.naming.Name;
 import com.ulfric.dragoon.reflect.Classes;
 import com.ulfric.dragoon.reflect.Instances;
-import com.ulfric.tryto.Try;
+import com.ulfric.tryto.TryTo;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -224,7 +224,7 @@ public final class Invoker implements Command {
 				continue;
 			}
 			arguments.remove();
-			Try.toRun(() ->
+			TryTo.run(() ->
 				FieldUtils.writeField(request.getDefinition().getField(),
 						request.getContext().getCommand(), resolved));
 			return;
