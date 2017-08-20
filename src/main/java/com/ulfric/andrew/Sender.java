@@ -1,8 +1,8 @@
 package com.ulfric.andrew;
 
 import com.ulfric.commons.naming.Named;
+import com.ulfric.i18n.content.Details;
 
-import java.util.Map;
 import java.util.UUID;
 
 public interface Sender extends Named {
@@ -13,7 +13,7 @@ public interface Sender extends Named {
 
 	void sendMessage(String message);
 
-	void sendMessage(String message, Map<String, String> context);
+	void sendMessage(String message, Details details);
 
 	Object handle();
 
