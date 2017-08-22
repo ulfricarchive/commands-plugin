@@ -1,5 +1,7 @@
 package com.ulfric.andrew;
 
+import org.bukkit.command.CommandSender;
+
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
@@ -188,7 +190,7 @@ public final class Invoker implements Command {
 	}
 
 	private void runPermissionsChecks(Context context) {
-		Sender sender = context.getSender();
+		CommandSender sender = context.getSender();
 		for (String node : permissions) {
 			if (sender.hasPermission(node)) {
 				continue;

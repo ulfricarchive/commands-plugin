@@ -3,6 +3,8 @@ package com.ulfric.andrew;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 
+import org.bukkit.command.CommandSender;
+
 import java.util.IdentityHashMap;
 
 public abstract class ContextTestSuite {
@@ -14,7 +16,7 @@ public abstract class ContextTestSuite {
 		context = new Context();
 		context.setLabel("hello");
 		context.setArguments(new IdentityHashMap<>());
-		context.setSender(Mockito.mock(Sender.class));
+		context.setSender(Mockito.mock(CommandSender.class));
 	}
 
 }

@@ -6,14 +6,13 @@
 
 	<parent>
 		<groupId>com.ulfric.parent</groupId>
-		<artifactId>parent</artifactId>
-		<version>3.0.0</version>
+		<artifactId>minecraft</artifactId>
+		<version>1.0.0</version>
 	</parent>
 
 	<groupId>com.ulfric.andrew</groupId>
 	<artifactId>andrew</artifactId>
 	<version>1.0.0</version>
-	<packaging>jar</packaging>
 
 	<dependencies>
 		<dependency>
