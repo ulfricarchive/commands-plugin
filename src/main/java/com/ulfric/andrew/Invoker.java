@@ -13,18 +13,19 @@ import com.ulfric.andrew.argument.Resolver;
 import com.ulfric.commons.naming.Name;
 import com.ulfric.dragoon.reflect.Classes;
 import com.ulfric.dragoon.reflect.Instances;
+import com.ulfric.dragoon.stereotype.Stereotypes;
 import com.ulfric.tryto.TryTo;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public final class Invoker implements Command {
 
@@ -77,7 +78,7 @@ public final class Invoker implements Command {
 		List<ArgumentDefinition> arguments = new ArrayList<>();
 
 		for (Field field : command.getDeclaredFields()) {
-			Argument argument = field.getAnnotation(Argument.class); // TODO support stereotype
+			Argument argument = Stereotypes.getFirst(field, Argument.class);
 			if (argument == null) {
 				continue;
 			}
@@ -95,8 +96,10 @@ public final class Invoker implements Command {
 	}
 
 	private List<String> createPermissions() { // TODO support repeatable
-		Permission permission = command.getAnnotation(Permission.class); // TODO support stereotype
-		return permission == null ? Collections.emptyList() : Collections.singletonList(permission.value());
+		return Stereotypes.getAll(command, Permission.class)
+			.stream()
+			.map(Permission::value)
+			.collect(Collectors.toList());
 	}
 
 	public void registerWithParent() {
@@ -130,7 +133,7 @@ public final class Invoker implements Command {
 	}
 
 	public String getName() {
-		Name name = command.getAnnotation(Name.class); // TODO stereotype
+		Name name = Stereotypes.getFirst(command, Name.class);
 		if (name == null) {
 			return inferName();
 		}
@@ -146,29 +149,29 @@ public final class Invoker implements Command {
 	}
 
 	public List<String> getAliases() {
-		Alias aliases = command.getAnnotation(Alias.class); // TODO stereotype
-		if (aliases == null) {
-			return Collections.emptyList();
-		}
-		return Arrays.asList(aliases.value());
+		List<Alias> aliases = Stereotypes.getAll(command, Alias.class);
+		return aliases.stream()
+				.map(Alias::value)
+				.flatMap(Arrays::stream)
+				.collect(Collectors.toList());
 	}
 
 	public String getUsage() {
-		Usage usage = command.getAnnotation(Usage.class); // TODO stereotype
+		Usage usage = Stereotypes.getFirst(command, Usage.class);
 		return usage == null ? "/" + getName() : usage.value();
 	}
 
 	public String getDescription() {
-		Description description = command.getAnnotation(Description.class); // TODO stereotype
+		Description description = Stereotypes.getFirst(command, Description.class);
 		return description == null ? "" : description.value();
 	}
 
 	public boolean shouldRunOnMainThread() {
-		return command.isAnnotationPresent(Sync.class); // TODO stereotype
+		return Stereotypes.isAnnotated(command, Sync.class);
 	}
 
 	public boolean shouldBypassRunningCommand() {
-		return command.isAnnotationPresent(BypassRunningCommand.class); // TODO stereotype
+		return Stereotypes.isAnnotated(command, BypassRunningCommand.class);
 	}
 
 	public boolean isRoot() {

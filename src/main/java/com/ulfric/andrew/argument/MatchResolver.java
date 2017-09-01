@@ -1,5 +1,7 @@
 package com.ulfric.andrew.argument;
 
+import com.ulfric.commons.text.RegexHelper;
+
 public class MatchResolver extends Resolver<Flag> {
 
 	public MatchResolver() {
@@ -12,7 +14,7 @@ public class MatchResolver extends Resolver<Flag> {
 		if (match == null) {
 			return null;
 		}
-		return request.getArgument().matches(match.value()) ? FlagIsPresent.INSTANCE : null; // TODO cache
+		return RegexHelper.matches(request.getArgument(), match.value()) ? FlagIsPresent.INSTANCE : null;
 	}
 
 	enum FlagIsPresent implements Flag {
