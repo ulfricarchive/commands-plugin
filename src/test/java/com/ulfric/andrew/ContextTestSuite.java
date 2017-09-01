@@ -5,6 +5,7 @@ import org.mockito.Mockito;
 
 import org.bukkit.command.CommandSender;
 
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
 
 public abstract class ContextTestSuite {
@@ -14,8 +15,11 @@ public abstract class ContextTestSuite {
 	@BeforeEach
 	final void setupContext() {
 		context = new Context();
-		context.setLabel("hello");
-		context.setArguments(new IdentityHashMap<>());
+		context.setLabels(new Labels());
+		context.getLabels().setRoot("hello");
+		context.setArguments(new Arguments());
+		context.getArguments().setAllArguments(new ArrayList<>());
+		context.getArguments().setArguments(new IdentityHashMap<>());
 		context.setSender(Mockito.mock(CommandSender.class));
 	}
 

@@ -167,6 +167,10 @@ public final class Invoker implements Command {
 		return command.isAnnotationPresent(Sync.class); // TODO stereotype
 	}
 
+	public boolean shouldBypassRunningCommand() {
+		return command.isAnnotationPresent(BypassRunningCommand.class); // TODO stereotype
+	}
+
 	public boolean isRoot() {
 		return superCommand == null;
 	}
@@ -205,12 +209,18 @@ public final class Invoker implements Command {
 			ResolutionRequest request = new ResolutionRequest();
 			request.setContext(context);
 			request.setDefinition(definition);
+			request.setCommand(command);
 			setupArgument(request);
 		}
 	}
 
-	private void setupArgument(ResolutionRequest request) {
-		List<String> enteredArguments = request.getContext().getArguments().get(command);
+	private void setupArgument(ResolutionRequest request) { // TODO cleanup method
+		Arguments commandArguments = request.getContext().getArguments();
+		if (commandArguments.getArguments() == null) {
+			missingArgument(request.getDefinition());
+			return;
+		}
+		List<String> enteredArguments = commandArguments.getArguments().get(command);
 		if (enteredArguments == null) {
 			missingArgument(request.getDefinition());
 			return;

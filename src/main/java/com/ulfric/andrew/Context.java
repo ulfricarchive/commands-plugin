@@ -4,15 +4,15 @@ import org.bukkit.command.CommandSender;
 
 import com.ulfric.commons.value.Bean;
 
-import java.util.List;
-import java.util.Map;
+import java.time.Instant;
 
 public class Context extends Bean {
 
 	private CommandSender sender;
-	private String label;
-	private Map<Class<? extends Command>, List<String>> arguments;
+	private Arguments arguments;
+	private Labels labels;
 	private Command command;
+	private Instant creation;
 
 	public CommandSender getSender() {
 		return sender;
@@ -22,20 +22,20 @@ public class Context extends Bean {
 		this.sender = sender;
 	}
 
-	public String getLabel() {
-		return label;
-	}
-
-	public void setLabel(String label) {
-		this.label = label;
-	}
-
-	public Map<Class<? extends Command>, List<String>> getArguments() {
+	public Arguments getArguments() {
 		return arguments;
 	}
 
-	public void setArguments(Map<Class<? extends Command>, List<String>> arguments) {
+	public void setArguments(Arguments arguments) {
 		this.arguments = arguments;
+	}
+
+	public Labels getLabels() {
+		return labels;
+	}
+
+	public void setLabels(Labels labels) {
+		this.labels = labels;
 	}
 
 	public Command getCommand() {
@@ -44,6 +44,14 @@ public class Context extends Bean {
 
 	public void setCommand(Command command) {
 		this.command = command;
+	}
+
+	public Instant getCreation() {
+		return creation;
+	}
+
+	public void setCreation(Instant creation) {
+		this.creation = creation;
 	}
 
 }

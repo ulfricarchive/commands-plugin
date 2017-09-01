@@ -8,6 +8,7 @@ public class ResolutionRequest extends Bean {
 	private ArgumentDefinition definition;
 	private Context context;
 	private String argument;
+	private Class<?> command;
 
 	public ArgumentDefinition getDefinition() {
 		return definition;
@@ -31,6 +32,14 @@ public class ResolutionRequest extends Bean {
 
 	public void setArgument(String argument) {
 		this.argument = argument;
+	}
+
+	public Class<?> getCommand() {
+		return command;
+	}
+
+	public void setCommand(Class<?> command) {
+		this.command = command;
 	}
 
 }

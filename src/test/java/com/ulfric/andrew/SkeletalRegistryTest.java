@@ -45,7 +45,7 @@ class SkeletalRegistryTest extends ContextTestSuite {
 
 	@Test
 	void testCommand() {
-		context.getArguments().put(Command.class, Arrays.asList("one", "two", "three"));
+		context.getArguments().getAllArguments().addAll(Arrays.asList("one", "two", "three"));
 		Command command = Invoker.of(Hello.class);
 		Mockito.when(registry.getCommand(ArgumentMatchers.anyString())).thenReturn(command);
 		registry.dispatch(context);
@@ -54,7 +54,7 @@ class SkeletalRegistryTest extends ContextTestSuite {
 
 	@Test
 	void testSubCommand() {
-		context.getArguments().put(Command.class, Arrays.asList("world"));
+		context.getArguments().getAllArguments().add("world");
 		Command command = Invoker.of(Hello.class);
 		Invoker.of(World.class).registerWithParent();
 		Mockito.when(registry.getCommand(ArgumentMatchers.anyString())).thenReturn(command);
@@ -65,13 +65,13 @@ class SkeletalRegistryTest extends ContextTestSuite {
 
 	@Test
 	void testSubCommandBothHaveArguments() {
-		context.getArguments().put(Command.class, Arrays.asList("helloarg", "world", "worldarg"));
+		context.getArguments().getAllArguments().addAll(Arrays.asList("helloarg", "world", "worldarg"));
 		Command command = Invoker.of(Hello.class);
 		Invoker.of(World.class).registerWithParent();
 		Mockito.when(registry.getCommand(ArgumentMatchers.anyString())).thenReturn(command);
 		registry.dispatch(context);
-		Truth.assertThat(World.last.getArguments().get(Hello.class)).containsExactly("helloarg");
-		Truth.assertThat(World.last.getArguments().get(World.class)).containsExactly("worldarg");
+		Truth.assertThat(World.last.getArguments().getArguments().get(Hello.class)).containsExactly("helloarg");
+		Truth.assertThat(World.last.getArguments().getArguments().get(World.class)).containsExactly("worldarg");
 		Invoker.of(World.class).unregisterWithParent();
 	}
 

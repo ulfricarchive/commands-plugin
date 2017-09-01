@@ -93,7 +93,7 @@ class InvokerTest extends ContextTestSuite {
 	@Test
 	void testIdentityArgument() {
 		String name = UUID.randomUUID().toString();
-		context.getArguments().put(HelloName.class, new ArrayList<>(Arrays.asList(name)));
+		context.getArguments().getArguments().put(HelloName.class, new ArrayList<>(Arrays.asList(name)));
 		Invoker.of(HelloName.class).run(context);
 		Truth.assertThat(HelloName.last).isEqualTo(name);
 	}
@@ -110,14 +110,14 @@ class InvokerTest extends ContextTestSuite {
 
 	@Test
 	void testIdentityArgumentOptionalEmptyArguments() {
-		context.getArguments().put(HelloNameOptional.class, new ArrayList<>());
+		context.getArguments().getArguments().put(HelloNameOptional.class, new ArrayList<>());
 		Veracity.assertThat(() -> Invoker.of(HelloNameOptional.class).run(context)).runsWithoutExceptions();
 	}
 
 	@Test
 	void testSpecialCaseArgument() {
 		Resolver<String> mr = new MrResolver();
-		context.getArguments().put(HelloMr.class, new ArrayList<>(Arrays.asList("Mr. Johnson")));
+		context.getArguments().getArguments().put(HelloMr.class, new ArrayList<>(Arrays.asList("Mr. Johnson")));
 		Resolver.register(mr);
 		Invoker.of(HelloMr.class).run(context);
 		Truth.assertThat(HelloMr.last).isEqualTo("Mr. Johnson");
@@ -127,7 +127,7 @@ class InvokerTest extends ContextTestSuite {
 	@Test
 	void testSpecialCaseArgumentMissing() {
 		Resolver<String> mr = new MrResolver();
-		context.getArguments().put(HelloMr.class, new ArrayList<>());
+		context.getArguments().getArguments().put(HelloMr.class, new ArrayList<>());
 		Resolver.register(mr);
 		Veracity.assertThat(() -> Invoker.of(HelloMr.class).run(context)).doesThrow(MissingArgumentException.class);
 		Resolver.remove(mr);
@@ -136,7 +136,7 @@ class InvokerTest extends ContextTestSuite {
 	@Test
 	void testSpecialCaseArgumentInvalid() {
 		Resolver<String> mr = new MrResolver();
-		context.getArguments().put(HelloMr.class, new ArrayList<>(Arrays.asList("Dr. Johnson")));
+		context.getArguments().getArguments().put(HelloMr.class, new ArrayList<>(Arrays.asList("Dr. Johnson")));
 		Resolver.register(mr);
 		Veracity.assertThat(() -> Invoker.of(HelloMr.class).run(context)).doesThrow(MissingArgumentException.class);
 		Resolver.remove(mr);
