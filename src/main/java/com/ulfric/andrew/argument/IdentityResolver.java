@@ -1,5 +1,7 @@
 package com.ulfric.andrew.argument;
 
+import com.ulfric.commons.reflect.AnnotationHelper;
+
 public class IdentityResolver extends Resolver<String> {
 
 	public IdentityResolver() {
@@ -8,7 +10,7 @@ public class IdentityResolver extends Resolver<String> {
 
 	@Override
 	public String apply(ResolutionRequest request) {
-		if (request.getDefinition().getField().getAnnotations().length == 1) {
+		if (AnnotationHelper.countDirectAnnotations(request.getDefinition().getField()) == 1) {
 			return request.getArgument();
 		}
 		return null;

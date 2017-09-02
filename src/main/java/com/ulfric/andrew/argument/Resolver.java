@@ -1,7 +1,8 @@
 package com.ulfric.andrew.argument;
 
+import com.ulfric.commons.collection.Computations;
+
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,13 +15,14 @@ public abstract class Resolver<T> implements Function<ResolutionRequest, T> {
 
 	static {
 		register(new IdentityResolver());
+		register(new SlugResolver());
 		register(new MatchResolver());
 	}
 
 	public static void register(Resolver<?> resolver) {
 		Objects.requireNonNull(resolver, "resolver");
 
-		RESOLVERS.computeIfAbsent(resolver.getType(), ignore -> new ArrayList<>()).add(resolver);
+		RESOLVERS.computeIfAbsent(resolver.getType(), Computations::newArrayListIgnoring).add(resolver);
 	}
 
 	public static void remove(Resolver<?> resolver) {

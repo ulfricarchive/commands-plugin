@@ -11,9 +11,6 @@ class MatchResolverTest {
 	private ResolutionRequest request;
 	private ArgumentDefinition definition;
 
-	/**
-	 * 
-	 */
 	@BeforeEach
 	void setup() {
 		resolver = new MatchResolver();
