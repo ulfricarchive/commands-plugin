@@ -1,6 +1,7 @@
 package com.ulfric.andrew;
 
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import com.ulfric.commons.value.Bean;
 
@@ -8,11 +9,22 @@ import java.time.Instant;
 
 public class Context extends Bean {
 
+	public static Player getPlayer(Context context) {
+		CommandSender sender = context.getSender();
+
+		if (sender instanceof Player) {
+			return (Player) sender;
+		}
+
+		throw new MustBePlayerException(sender);
+	}
+
 	private CommandSender sender;
 	private Arguments arguments;
 	private Labels labels;
 	private Command command;
 	private Instant creation;
+	private String commandLine;
 
 	public CommandSender getSender() {
 		return sender;
@@ -52,6 +64,14 @@ public class Context extends Bean {
 
 	public void setCreation(Instant creation) {
 		this.creation = creation;
+	}
+
+	public String getCommandLine() {
+		return commandLine;
+	}
+
+	public void setCommandLine(String commandLine) {
+		this.commandLine = commandLine;
 	}
 
 }

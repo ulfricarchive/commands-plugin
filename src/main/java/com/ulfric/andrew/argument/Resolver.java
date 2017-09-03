@@ -3,6 +3,9 @@ package com.ulfric.andrew.argument;
 import com.ulfric.commons.collection.Computations;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,22 +20,30 @@ public abstract class Resolver<T> implements Function<ResolutionRequest, T> {
 		register(new IdentityResolver());
 		register(new SlugResolver());
 		register(new MatchResolver());
+		register(new IntegerResolver());
 	}
 
 	public static void register(Resolver<?> resolver) {
 		Objects.requireNonNull(resolver, "resolver");
 
-		RESOLVERS.computeIfAbsent(resolver.getType(), Computations::newArrayListIgnoring).add(resolver);
+		resolver.getTypes().forEach(type ->
+			RESOLVERS.computeIfAbsent(type, Computations::newArrayListIgnoring).add(resolver)
+		);
 	}
 
 	public static void remove(Resolver<?> resolver) {
 		Objects.requireNonNull(resolver, "resolver");
 
-		List<Resolver<?>> resolvers = RESOLVERS.get(resolver.getType());
-		if (resolvers == null) {
-			return;
-		}
-		resolvers.remove(resolver);
+		resolver.getTypes().forEach(type -> {
+			List<Resolver<?>> resolvers = RESOLVERS.get(type);
+			if (resolvers == null) {
+				return;
+			}
+			resolvers.remove(resolver);
+			if (resolvers.isEmpty()) {
+				RESOLVERS.remove(type);
+			}
+		});
 	}
 
 	public static Object resolve(ResolutionRequest request) {
@@ -51,16 +62,27 @@ public abstract class Resolver<T> implements Function<ResolutionRequest, T> {
 		return null;
 	}
 
-	private final Type type;
+	private final List<Type> types;
 
 	public Resolver(Type type) {
 		Objects.requireNonNull(type, "type");
 
-		this.type = type;
+		this.types = Collections.singletonList(type);
 	}
 
-	public final Type getType() {
-		return type;
+	public Resolver(Type first, Type... additional) {
+		Objects.requireNonNull(first, "first");
+		Objects.requireNonNull(additional, "additional");
+
+		List<Type> types = new ArrayList<>(additional.length + 1);
+		types.add(first);
+		Arrays.stream(additional)
+			.forEach(types::add);
+		this.types = Collections.unmodifiableList(types);
+	}
+
+	public final List<Type> getTypes() {
+		return types;
 	}
 
 }
