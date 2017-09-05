@@ -1,2 +1,2 @@
 # commons-commands
-Java command framework
+Spigot command framework
