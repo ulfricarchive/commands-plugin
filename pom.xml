@@ -6,24 +6,18 @@
 
 	<parent>
 		<groupId>com.ulfric.parent</groupId>
-		<artifactId>minecraft</artifactId>
+		<artifactId>bukkit</artifactId>
 		<version>1.0.0</version>
 	</parent>
 
-	<groupId>com.ulfric.andrew</groupId>
-	<artifactId>andrew</artifactId>
+	<groupId>com.ulfric.plugin</groupId>
+	<artifactId>commands-plugin</artifactId>
 	<version>1.0.0</version>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.ulfric.commons</groupId>
 			<artifactId>commons</artifactId>
-			<version>1.0.0</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.ulfric.i18n</groupId>
-			<artifactId>i18n</artifactId>
 			<version>1.0.0</version>
 		</dependency>
 	</dependencies>
