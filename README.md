@@ -1,2 +1,2 @@
-# commons-spigot-commands
-Spigot command framework
+# commands-plugin
+Plugin for hosting command execution
