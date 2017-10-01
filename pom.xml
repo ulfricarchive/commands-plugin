@@ -6,7 +6,7 @@
 
 	<parent>
 		<groupId>com.ulfric.parent</groupId>
-		<artifactId>bukkit</artifactId>
+		<artifactId>bukkit-plugin</artifactId>
 		<version>1.0.0</version>
 	</parent>
 
@@ -18,6 +18,18 @@
 		<dependency>
 			<groupId>com.ulfric.commons</groupId>
 			<artifactId>commons</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.ulfric.commons</groupId>
+			<artifactId>commons-bukkit</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.ulfric.plugin</groupId>
+			<artifactId>locale-plugin</artifactId>
 			<version>1.0.0</version>
 		</dependency>
 	</dependencies>
