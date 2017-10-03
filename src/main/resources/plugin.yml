@@ -2,5 +2,4 @@ name: Commands
 main: com.ulfric.plugin.commands.CommandsPlugin
 version: 1.0.0
 author: Ulfric LLC
-load: STARTUP
-depends: [Platform, Locale]
+depend: [Platform, Services, Locale]
