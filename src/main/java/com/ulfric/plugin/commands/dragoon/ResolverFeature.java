@@ -4,7 +4,7 @@ import com.ulfric.dragoon.application.Application;
 import com.ulfric.dragoon.application.Feature;
 import com.ulfric.plugin.commands.argument.Resolver;
 
-public class ResolverFeature extends Feature { // TODO move to andrew codebase
+public class ResolverFeature extends Feature {
 
 	@Override
 	public Application apply(Object resolver) {

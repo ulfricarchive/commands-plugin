@@ -5,7 +5,7 @@ import com.ulfric.plugin.commands.argument.Resolver;
 
 import java.util.Objects;
 
-public class ResolverApplication extends Application { // TODO move to andrew codebase
+public class ResolverApplication extends Application {
 
 	private final Resolver<?> resolver;
 
