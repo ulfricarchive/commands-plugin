@@ -167,14 +167,6 @@ public final class Invoker implements Command {
 		return description == null ? "" : description.value();
 	}
 
-	public boolean shouldRunOnMainThread() {
-		return Stereotypes.isAnnotated(command, Sync.class);
-	}
-
-	public boolean shouldBypassRunningCommand() {
-		return Stereotypes.isAnnotated(command, BypassRunningCommand.class);
-	}
-
 	public boolean isRoot() {
 		return superCommand == null;
 	}

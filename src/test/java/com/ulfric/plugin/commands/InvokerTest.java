@@ -14,7 +14,6 @@ import com.ulfric.plugin.commands.Description;
 import com.ulfric.plugin.commands.Invoker;
 import com.ulfric.plugin.commands.MissingPermissionException;
 import com.ulfric.plugin.commands.Permission;
-import com.ulfric.plugin.commands.Sync;
 import com.ulfric.plugin.commands.Usage;
 import com.ulfric.plugin.commands.argument.Argument;
 import com.ulfric.plugin.commands.argument.MissingArgumentException;
@@ -72,16 +71,6 @@ class InvokerTest extends ContextTestSuite {
 	@Test
 	void testGetAliases() {
 		Truth.assertThat(Invoker.of(Aliased.class).getAliases()).containsExactly("hi");
-	}
-
-	@Test
-	void testIsAsyncByDefault() {
-		Truth.assertThat(Invoker.of(Hello.class).shouldRunOnMainThread()).isFalse();
-	}
-
-	@Test
-	void testIsSyncIfSpecified() {
-		Truth.assertThat(Invoker.of(SyncCommand.class).shouldRunOnMainThread()).isTrue();
 	}
 
 	@Test
@@ -194,13 +183,6 @@ class InvokerTest extends ContextTestSuite {
 
 	@Alias("hi")
 	static class Aliased implements Command {
-		@Override
-		public void run(Context context) {
-		}
-	}
-
-	@Sync
-	static class SyncCommand implements Command {
 		@Override
 		public void run(Context context) {
 		}

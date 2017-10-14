@@ -26,6 +26,7 @@ public class Context extends Bean {
 	private Command command;
 	private Instant creation;
 	private String commandLine;
+	private Lock lock;
 
 	public CommandSender getSender() {
 		return sender;
@@ -73,6 +74,14 @@ public class Context extends Bean {
 
 	public void setCommandLine(String commandLine) {
 		this.commandLine = commandLine;
+	}
+
+	public Lock getLock() {
+		return lock;
+	}
+
+	public void setLock(Lock lock) {
+		this.lock = lock;
 	}
 
 }
