@@ -1,5 +1,8 @@
 package com.ulfric.plugin.commands.internal;
 
+import java.lang.reflect.Field;
+import java.util.Objects;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
 import org.bukkit.plugin.SimplePluginManager;
@@ -7,13 +10,9 @@ import org.bukkit.plugin.SimplePluginManager;
 import com.ulfric.commons.reflect.FieldHelper;
 import com.ulfric.dragoon.reflect.Classes;
 import com.ulfric.plugin.commands.Command;
-import com.ulfric.plugin.commands.Context;
 import com.ulfric.plugin.commands.Invoker;
 import com.ulfric.plugin.commands.SkeletalRegistry;
 import com.ulfric.tryto.TryTo;
-
-import java.lang.reflect.Field;
-import java.util.Objects;
 
 public class CommandRegistry extends SkeletalRegistry {
 
@@ -78,11 +77,6 @@ public class CommandRegistry extends SkeletalRegistry {
 		@SuppressWarnings("unchecked")
 		Class<? extends Command> type = (Class<? extends Command>) Classes.getNonDynamic(command.getClass());
 		return Invoker.of(type);
-	}
-
-	@Override
-	public void dispatch(Context context) {
-		super.dispatch(context);
 	}
 
 }

@@ -1,15 +1,15 @@
 package com.ulfric.plugin.commands;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-
-import com.ulfric.plugin.commands.argument.Arguments;
-
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+
+import com.ulfric.plugin.commands.argument.Arguments;
 
 public abstract class SkeletalRegistry implements Registry {
 

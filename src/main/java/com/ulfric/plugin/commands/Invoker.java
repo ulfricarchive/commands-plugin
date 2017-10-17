@@ -176,15 +176,16 @@ public final class Invoker implements Command {
 		Command command = Instances.instance(this.command);
 		context.setCommand(command);
 
-		if (!isRoot()) {
-			superCommand.prerun(context);
-		}
-
 		prerun(context);
+
 		command.run(context);
 	}
 
 	private void prerun(Context context) {
+		if (!isRoot()) {
+			superCommand.prerun(context);
+		}
+
 		runPermissionsChecks(context);
 		setupArguments(context);
 	}
