@@ -8,8 +8,6 @@ import org.bukkit.command.CommandMap;
 import org.bukkit.plugin.SimplePluginManager;
 
 import com.ulfric.commons.reflect.FieldHelper;
-import com.ulfric.dragoon.reflect.Classes;
-import com.ulfric.plugin.commands.Command;
 import com.ulfric.plugin.commands.Invoker;
 import com.ulfric.plugin.commands.SkeletalRegistry;
 import com.ulfric.tryto.TryTo;
@@ -31,35 +29,33 @@ public class CommandRegistry extends SkeletalRegistry {
 	}
 
 	@Override
-	public void register(Command command) {
+	public void register(Invoker command) {
 		Objects.requireNonNull(command, "command");
 
-		Invoker invoker = asInvoker(command);
-		invoker.registerWithParent();
+		command.registerWithParent();
 
-		if (invoker.isRoot()) {
-			Dispatcher dispatcher = new Dispatcher(this, invoker);
+		if (command.isRoot()) {
+			Dispatcher dispatcher = new Dispatcher(this, command);
 			bukkitRegistry.register(dispatcher.getName(), dispatcher);
 		}
 	}
 
 	@Override
-	public void unregister(Command command) {
+	public void unregister(Invoker command) {
 		Objects.requireNonNull(command, "command");
 
-		Invoker invoker = asInvoker(command);
-		invoker.unregisterWithParent();
+		command.unregisterWithParent();
 
-		if (invoker.isRoot()) {
-			org.bukkit.command.Command bukkitCommand = bukkitRegistry.getCommand(invoker.getName());
-			if (bukkitCommand instanceof Dispatcher && ((Dispatcher) bukkitCommand).command == invoker) {
+		if (command.isRoot()) {
+			org.bukkit.command.Command bukkitCommand = bukkitRegistry.getCommand(command.getName());
+			if (bukkitCommand instanceof Dispatcher && ((Dispatcher) bukkitCommand).command == command) {
 				bukkitCommand.unregister(bukkitRegistry);
 			}
 		}
 	}
 
 	@Override
-	public Command getCommand(String name) {
+	public Invoker getCommand(String name) {
 		Objects.requireNonNull(name, "name");
 
 		org.bukkit.command.Command bukkitCommand = bukkitRegistry.getCommand(name.toLowerCase());
@@ -67,16 +63,6 @@ public class CommandRegistry extends SkeletalRegistry {
 			return ((Dispatcher) bukkitCommand).command;
 		}
 		return null;
-	}
-
-	private Invoker asInvoker(Command command) {
-		if (command instanceof Invoker) {
-			return (Invoker) command;
-		}
-
-		@SuppressWarnings("unchecked")
-		Class<? extends Command> type = (Class<? extends Command>) Classes.getNonDynamic(command.getClass());
-		return Invoker.of(type);
 	}
 
 }

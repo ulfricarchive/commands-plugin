@@ -32,16 +32,8 @@ class SkeletalRegistryTest extends ContextTestSuite {
 	}
 
 	@Test
-	void testCommandNotInvoker() {
-		Command command = Mockito.mock(Command.class);
-		Mockito.when(registry.getCommand(ArgumentMatchers.anyString())).thenReturn(command);
-		registry.dispatch(context);
-		Mockito.verify(command, Mockito.times(1)).run(context);
-	}
-
-	@Test
 	void testCommandWithoutArguments() {
-		Command command = Invoker.of(Hello.class);
+		Invoker command = Invoker.of(Hello.class);
 		Mockito.when(registry.getCommand(ArgumentMatchers.anyString())).thenReturn(command);
 		registry.dispatch(context);
 		Truth.assertThat(context).isSameAs(Hello.last);
@@ -50,7 +42,7 @@ class SkeletalRegistryTest extends ContextTestSuite {
 	@Test
 	void testCommand() {
 		context.getArguments().getAllArguments().addAll(Arrays.asList("one", "two", "three"));
-		Command command = Invoker.of(Hello.class);
+		Invoker command = Invoker.of(Hello.class);
 		Mockito.when(registry.getCommand(ArgumentMatchers.anyString())).thenReturn(command);
 		registry.dispatch(context);
 		Truth.assertThat(context).isSameAs(Hello.last);
@@ -59,7 +51,7 @@ class SkeletalRegistryTest extends ContextTestSuite {
 	@Test
 	void testSubCommand() {
 		context.getArguments().getAllArguments().add("world");
-		Command command = Invoker.of(Hello.class);
+		Invoker command = Invoker.of(Hello.class);
 		Invoker.of(World.class).registerWithParent();
 		Mockito.when(registry.getCommand(ArgumentMatchers.anyString())).thenReturn(command);
 		registry.dispatch(context);
@@ -70,7 +62,7 @@ class SkeletalRegistryTest extends ContextTestSuite {
 	@Test
 	void testSubCommandBothHaveArguments() {
 		context.getArguments().getAllArguments().addAll(Arrays.asList("helloarg", "world", "worldarg"));
-		Command command = Invoker.of(Hello.class);
+		Invoker command = Invoker.of(Hello.class);
 		Invoker.of(World.class).registerWithParent();
 		Mockito.when(registry.getCommand(ArgumentMatchers.anyString())).thenReturn(command);
 		registry.dispatch(context);
@@ -83,28 +75,27 @@ class SkeletalRegistryTest extends ContextTestSuite {
 	void testInstantiate() {
 		Veracity.assertThat(() -> {
 			new SkeletalRegistry() {
-
 				@Override
-				public void register(Command command) {
+				public void register(Invoker command) {
 				}
 
 				@Override
-				public void unregister(Command command) {
+				public void unregister(Invoker command) {
 				}
 
 				@Override
-				public Command getCommand(String name) {
+				public Invoker getCommand(String name) {
 					return null;
 				}
 			}.hashCode();
 		}).runsWithoutExceptions();
 	}
 
-	static class Hello implements Command {
+	static class Hello extends Command {
 		static Context last;
 
 		@Override
-		public void run(Context context) {
+		public void run() {
 			last = context;
 		}
 	}
@@ -113,7 +104,7 @@ class SkeletalRegistryTest extends ContextTestSuite {
 		static Context last;
 
 		@Override
-		public void run(Context context) {
+		public void run() {
 			last = context;
 		}
 	}

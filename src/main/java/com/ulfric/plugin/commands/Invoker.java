@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public final class Invoker implements Command {
+public final class Invoker {
 
 	private static final Map<Class<? extends Command>, Invoker> INVOKERS = new IdentityHashMap<>();
 	public static final String INTERNAL_ERROR_MESSAGE = "command-internal-error";
@@ -36,8 +36,8 @@ public final class Invoker implements Command {
 	public static Invoker of(Class<? extends Command> command) {
 		Objects.requireNonNull(command, "command");
 
-		if (command == Invoker.class) {
-			throw new IllegalArgumentException("Cannot create an invoker of invoker");
+		if (command == Command.class) {
+			throw new IllegalArgumentException("Cannot create an invoker of " + command);
 		}
 
 		if (Modifier.isAbstract(command.getModifiers())) { // TODO static utility
@@ -171,14 +171,14 @@ public final class Invoker implements Command {
 		return superCommand == null;
 	}
 
-	@Override
 	public void run(Context context) {
 		Command command = Instances.instance(this.command);
+		command.context = context;
 		context.setCommand(command);
 
 		prerun(context);
 
-		command.run(context);
+		command.run();
 	}
 
 	private void prerun(Context context) {
@@ -233,9 +233,9 @@ public final class Invoker implements Command {
 				continue;
 			}
 			arguments.remove();
-			TryTo.run(() ->
+			TryTo.run(() -> {
 				FieldUtils.writeField(request.getDefinition().getField(),
-						request.getContext().getCommand(), resolved));
+						request.getContext().getCommand(), resolved); });
 			return;
 		}
 

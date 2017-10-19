@@ -17,20 +17,15 @@ public abstract class SkeletalRegistry implements Registry {
 	public void dispatch(Context context) {
 		validate(context);
 
-		Command command = getCommand(context);
+		Invoker command = getCommand(context);
 		if (command == null) {
 			return;
 		}
 
-		if (command instanceof Invoker) {
-			dispatch((Invoker) command, context);
-			return;
-		}
-
-		command.run(context);
+		dispatch(command, context);
 	}
 
-	private Command getCommand(Context context) {
+	private Invoker getCommand(Context context) {
 		return getCommand(context.getLabels().getRoot());
 	}
 

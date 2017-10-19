@@ -2,11 +2,11 @@ package com.ulfric.plugin.commands;
 
 public interface Registry {
 
-	void register(Command command);
+	void register(Invoker command);
 
-	void unregister(Command command);
+	void unregister(Invoker command);
 
-	Command getCommand(String name);
+	Invoker getCommand(String name);
 
 	void dispatch(Context context);
 

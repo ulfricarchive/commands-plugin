@@ -11,7 +11,7 @@ import java.util.Objects;
 
 public class CommandApplication extends Application {
 
-	private final Command command;
+	private final Invoker command;
 
 	@Inject
 	private Registry registry;

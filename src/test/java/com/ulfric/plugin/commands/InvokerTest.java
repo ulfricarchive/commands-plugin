@@ -1,37 +1,28 @@
 package com.ulfric.plugin.commands;
 
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
-
-import com.google.common.truth.Truth;
-
-import com.ulfric.commons.naming.Name;
-import com.ulfric.plugin.commands.Alias;
-import com.ulfric.plugin.commands.Command;
-import com.ulfric.plugin.commands.Context;
-import com.ulfric.plugin.commands.Description;
-import com.ulfric.plugin.commands.Invoker;
-import com.ulfric.plugin.commands.MissingPermissionException;
-import com.ulfric.plugin.commands.Permission;
-import com.ulfric.plugin.commands.Usage;
-import com.ulfric.plugin.commands.argument.Argument;
-import com.ulfric.plugin.commands.argument.MissingArgumentException;
-import com.ulfric.plugin.commands.argument.ResolutionRequest;
-import com.ulfric.plugin.commands.argument.Resolver;
-import com.ulfric.veracity.Veracity;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
 
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
+
+import com.google.common.truth.Truth;
+import com.ulfric.commons.naming.Name;
+import com.ulfric.plugin.commands.argument.Argument;
+import com.ulfric.plugin.commands.argument.MissingArgumentException;
+import com.ulfric.plugin.commands.argument.ResolutionRequest;
+import com.ulfric.plugin.commands.argument.Resolver;
+import com.ulfric.veracity.Veracity;
+
 class InvokerTest extends ContextTestSuite {
 
 	@Test
 	void testOfInvoker() {
-		Veracity.assertThat(() -> Invoker.of(Invoker.class)).doesThrow(IllegalArgumentException.class);
+		Veracity.assertThat(() -> Invoker.of(Command.class)).doesThrow(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -161,74 +152,74 @@ class InvokerTest extends ContextTestSuite {
 	}
 
 	@Permission("hello.world")
-	static class PermissionCheck implements Command {
+	static class PermissionCheck extends Command {
 		@Override
-		public void run(Context context) {
+		public void run() {
 		}
 	}
 
 	@Usage("/hello <your argument>")
-	static class UsageDescribed implements Command {
+	static class UsageDescribed extends Command {
 		@Override
-		public void run(Context context) {
+		public void run() {
 		}
 	}
 
 	@Description("say hello")
-	static class DescriptionDescribed implements Command {
+	static class DescriptionDescribed extends Command {
 		@Override
-		public void run(Context context) {
+		public void run() {
 		}
 	}
 
 	@Alias("hi")
-	static class Aliased implements Command {
+	static class Aliased extends Command {
 		@Override
-		public void run(Context context) {
+		public void run() {
 		}
 	}
 
-	static class Hello implements Command {
+	static class Hello extends Command {
 		@Override
-		public void run(Context context) {
+		public void run() {
 		}
 	}
 
-	static class HelloCommand implements Command {
+	static class HelloCommand extends Command {
 		@Override
-		public void run(Context context) {
+		public void run() {
 		}
 	}
 
 	@Name("greetings")
-	static class HelloGiven implements Command {
+	static class HelloGiven extends Command {
 		@Override
-		public void run(Context context) {
+		public void run() {
 		}
 	}
 
-	static class HelloName implements Command {
+	static class HelloName extends Command {
 		static String last;
 
 		@Argument
 		String name;
 
 		@Override
-		public void run(Context context) {
+		public void run() {
 			last = name;
 		}
 	}
 
-	static class HelloNameOptional implements Command {
+	static class HelloNameOptional extends Command {
 		@Argument(optional = true)
 		String name;
 
 		@Override
-		public void run(Context context) {
+		public void run() {
 		}
 	}
 
-	static class HelloMr implements Command {
+	static class HelloMr extends Command {
 		static String last;
 
 		@Argument
@@ -236,7 +227,7 @@ class InvokerTest extends ContextTestSuite {
 		String mr;
 
 		@Override
-		public void run(Context context) {
+		public void run() {
 			last = mr;
 		}
 	}
@@ -257,9 +248,9 @@ class InvokerTest extends ContextTestSuite {
 	}
 
 	@Name("concrete")
-	static class AbstractParentConcreteBase implements Command {
+	static class AbstractParentConcreteBase extends Command {
 		@Override
-		public void run(Context context) {
+		public void run() {
 		}
 	}
 
@@ -270,7 +261,7 @@ class InvokerTest extends ContextTestSuite {
 	@Name("child")
 	static class ChildOfAbstractParent extends AbstractParent {
 		@Override
-		public void run(Context context) {
+		public void run() {
 		}
 	}
 
