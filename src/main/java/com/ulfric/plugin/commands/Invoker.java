@@ -51,7 +51,7 @@ public final class Invoker {
 
 	private final Class<? extends Command> command;
 	private final Invoker superCommand;
-	private final List<String> permissions;
+	private final List<Permission> permissions;
 	private final List<ArgumentDefinition> arguments;
 	private final Map<String, Invoker> subcommands = new CaseInsensitiveMap<>();
 	private final String restrictionContext;
@@ -103,11 +103,8 @@ public final class Invoker {
 		return arguments;
 	}
 
-	private List<String> createPermissions() { // TODO support repeatable
-		return Stereotypes.getAll(command, Permission.class)
-			.stream()
-			.map(Permission::value)
-			.collect(Collectors.toList());
+	private List<Permission> createPermissions() { // TODO support repeatable
+		return Stereotypes.getAll(command, Permission.class);
 	}
 
 	private String restrictionContext() {
@@ -230,12 +227,12 @@ public final class Invoker {
 
 	private void runPermissionsChecks(Context context) {
 		CommandSender sender = context.getSender();
-		for (String node : permissions) {
-			if (sender.hasPermission(node)) {
+		for (Permission permission : permissions) {
+			if (sender.hasPermission(permission.value())) {
 				continue;
 			}
 
-			throw new MissingPermissionException(node);
+			throw new MissingPermissionException(permission.value(), permission.message());
 		}
 	}
 

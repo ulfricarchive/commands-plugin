@@ -45,8 +45,11 @@ final class Runner implements Consumer<Context> {
 		try {
 			throw thrown;
 		} catch (MissingPermissionException permissionCheck) {
+			message = permissionCheck.getPermissionMessage();
+			if (StringUtils.isEmpty(message)) {
+				message = "command-no-permission";
+			}
 			details.add("node", permissionCheck.getMessage());
-			message = "command-no-permission";
 		} catch (MissingArgumentException requiredArgument) {
 			message = requiredArgument.getArgumentMessage();
 			if (StringUtils.isEmpty(message)) {

@@ -2,8 +2,16 @@ package com.ulfric.plugin.commands;
 
 public class MissingPermissionException extends CommandException {
 
-	public MissingPermissionException(String node) {
+	private final String permissionMessage;
+
+	public MissingPermissionException(String node, String permissionMessage) {
 		super(node);
+
+		this.permissionMessage = permissionMessage;
+	}
+
+	public String getPermissionMessage() {
+		return permissionMessage;
 	}
 
 }
