@@ -42,6 +42,13 @@
 			<version>1.0.0</version>
 			<scope>provided</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>com.ulfric.plugin</groupId>
+			<artifactId>restrictions-plugin</artifactId>
+			<version>1.0.0</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 
 </project>

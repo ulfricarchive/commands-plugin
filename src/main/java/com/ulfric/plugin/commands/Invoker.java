@@ -1,9 +1,19 @@
 package com.ulfric.plugin.commands;
 
-import org.bukkit.command.CommandSender;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.bukkit.command.CommandSender;
 
 import com.ulfric.commons.naming.Name;
 import com.ulfric.dragoon.reflect.Classes;
@@ -15,18 +25,9 @@ import com.ulfric.plugin.commands.argument.Arguments;
 import com.ulfric.plugin.commands.argument.MissingArgumentException;
 import com.ulfric.plugin.commands.argument.ResolutionRequest;
 import com.ulfric.plugin.commands.argument.Resolver;
+import com.ulfric.plugin.restrictions.RestrictedActionService;
+import com.ulfric.plugin.restrictions.RestrictedContext;
 import com.ulfric.tryto.TryTo;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 public final class Invoker {
 
@@ -52,12 +53,14 @@ public final class Invoker {
 	private final List<String> permissions;
 	private final List<ArgumentDefinition> arguments;
 	private final Map<String, Invoker> subcommands = new CaseInsensitiveMap<>();
+	private final String restrictionContext;
 
 	private Invoker(Class<? extends Command> command) {
 		this.command = command;
 		this.superCommand = superCommand();
 		this.arguments = createArgumentDefinitions();
 		this.permissions = createPermissions();
+		this.restrictionContext = restrictionContext();
 	}
 
 	private Invoker superCommand() {
@@ -101,6 +104,16 @@ public final class Invoker {
 			.stream()
 			.map(Permission::value)
 			.collect(Collectors.toList());
+	}
+
+	private String restrictionContext() {
+		Restricted restricted = Stereotypes.getFirst(command, Restricted.class);
+
+		if (restricted == null) {
+			return null;
+		}
+
+		return restricted.value().isEmpty() ? null : restricted.value();
 	}
 
 	public void registerWithParent() {
@@ -172,6 +185,19 @@ public final class Invoker {
 	}
 
 	public void run(Context context) {
+		if (restrictionContext != null) {
+			RestrictedContext restriction = new RestrictedContext();
+			restriction.setAction(restrictionContext);
+			restriction.setSender(context.getSender());
+
+			RestrictedActionService.doRestricted(() -> runUnrestricted(context), restriction);
+			return;
+		}
+
+		runUnrestricted(context);
+	}
+
+	private void runUnrestricted(Context context) {
 		Command command = Instances.instance(this.command);
 		command.context = context;
 		context.setCommand(command);
