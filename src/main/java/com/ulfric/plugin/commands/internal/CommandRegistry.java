@@ -2,12 +2,18 @@ package com.ulfric.plugin.commands.internal;
 
 import java.lang.reflect.Field;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
 import org.bukkit.plugin.SimplePluginManager;
 
 import com.ulfric.commons.reflect.FieldHelper;
+import com.ulfric.dragoon.ObjectFactory;
+import com.ulfric.dragoon.extension.inject.Inject;
+import com.ulfric.dragoon.extension.intercept.asynchronous.Asynchronous;
+import com.ulfric.dragoon.extension.intercept.asynchronous.AsynchronousInterceptor;
+import com.ulfric.dragoon.extension.intercept.asynchronous.CurrentThreadExecutor;
 import com.ulfric.plugin.commands.Invoker;
 import com.ulfric.plugin.commands.SkeletalRegistry;
 import com.ulfric.tryto.TryTo;
@@ -15,6 +21,9 @@ import com.ulfric.tryto.TryTo;
 public class CommandRegistry extends SkeletalRegistry {
 
 	private final CommandMap bukkitRegistry;
+
+	@Inject
+	private ObjectFactory factory;
 
 	public CommandRegistry() {
 		bukkitRegistry = lookupBukkitRegistry();
@@ -35,9 +44,20 @@ public class CommandRegistry extends SkeletalRegistry {
 		command.registerWithParent();
 
 		if (command.isRoot()) {
-			Dispatcher dispatcher = new Dispatcher(this, command);
+			Runner runner = new Runner(this, executor(command));
+			Dispatcher dispatcher = new Dispatcher(runner, command);
 			bukkitRegistry.register(dispatcher.getName(), dispatcher);
 		}
+	}
+
+	private Executor executor(Invoker invoker) {
+		Asynchronous asynchronous = invoker.getAsynchronous();
+
+		if (asynchronous == null) {
+			return CurrentThreadExecutor.INSTANCE;
+		}
+
+		return AsynchronousInterceptor.executor(factory, asynchronous);
 	}
 
 	@Override

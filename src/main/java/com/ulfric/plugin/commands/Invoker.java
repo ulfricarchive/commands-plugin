@@ -16,6 +16,7 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import org.bukkit.command.CommandSender;
 
 import com.ulfric.commons.naming.Name;
+import com.ulfric.dragoon.extension.intercept.asynchronous.Asynchronous;
 import com.ulfric.dragoon.reflect.Classes;
 import com.ulfric.dragoon.reflect.Instances;
 import com.ulfric.dragoon.stereotype.Stereotypes;
@@ -54,6 +55,7 @@ public final class Invoker {
 	private final List<ArgumentDefinition> arguments;
 	private final Map<String, Invoker> subcommands = new CaseInsensitiveMap<>();
 	private final String restrictionContext;
+	private final Asynchronous asynchronous;
 
 	private Invoker(Class<? extends Command> command) {
 		this.command = command;
@@ -61,6 +63,7 @@ public final class Invoker {
 		this.arguments = createArgumentDefinitions();
 		this.permissions = createPermissions();
 		this.restrictionContext = restrictionContext();
+		this.asynchronous = asynchronousContext();
 	}
 
 	private Invoker superCommand() {
@@ -90,6 +93,7 @@ public final class Invoker {
 
 			ArgumentDefinition definition = new ArgumentDefinition();
 			definition.setField(field);
+			definition.setMessage(argument.message());
 			definition.setOptional(argument.optional());
 			definition.setName(field.getName());
 			definition.setType(field.getGenericType());
@@ -114,6 +118,10 @@ public final class Invoker {
 		}
 
 		return restricted.value().isEmpty() ? null : restricted.value();
+	}
+
+	private Asynchronous asynchronousContext() {
+		return Stereotypes.getFirst(command, Asynchronous.class);
 	}
 
 	public void registerWithParent() {
@@ -178,6 +186,10 @@ public final class Invoker {
 	public String getDescription() {
 		Description description = Stereotypes.getFirst(command, Description.class);
 		return description == null ? "" : description.value();
+	}
+
+	public Asynchronous getAsynchronous() {
+		return asynchronous;
 	}
 
 	public boolean isRoot() {
@@ -270,7 +282,7 @@ public final class Invoker {
 
 	private void missingArgument(ArgumentDefinition definition) {
 		if (!definition.getOptional()) {
-			throw new MissingArgumentException(definition.getName());
+			throw new MissingArgumentException(definition.getName(), definition.getMessage());
 		}
 	}
 

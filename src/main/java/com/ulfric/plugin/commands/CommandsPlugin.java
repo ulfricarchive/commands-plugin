@@ -13,7 +13,7 @@ public class CommandsPlugin extends Plugin {
 		install(CommandFeature.class);
 		install(DefaultResolversContainer.class);
 
-		Plugin.FACTORY.bind(Registry.class).toValue(Plugin.FACTORY.request(CommandRegistry.class));
+		FACTORY.bind(Registry.class).toSingleton(CommandRegistry.class);
 	}
 
 }

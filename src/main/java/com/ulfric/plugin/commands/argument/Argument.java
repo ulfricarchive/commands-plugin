@@ -12,4 +12,6 @@ public @interface Argument {
 
 	boolean optional() default false;
 
+	String message() default "";
+
 }

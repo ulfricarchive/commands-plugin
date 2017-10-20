@@ -8,6 +8,7 @@ import java.lang.reflect.Type;
 public class ArgumentDefinition extends Bean { // TODO stop mutability
 
 	private String name;
+	private String message;
 	private Type type;
 	private Field field;
 	private Boolean optional;
@@ -18,6 +19,14 @@ public class ArgumentDefinition extends Bean { // TODO stop mutability
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
 	}
 
 	public Type getType() {

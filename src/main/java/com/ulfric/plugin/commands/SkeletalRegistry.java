@@ -29,7 +29,7 @@ public abstract class SkeletalRegistry implements Registry {
 		return getCommand(context.getLabels().getRoot());
 	}
 
-	private void dispatch(Invoker invoker, Context context) { // TODO cleanup method
+	private void dispatch(Invoker invoker, Context context) { // TODO cleanup
 		Arguments contextArguments = context.getArguments();
 		Map<Class<? extends Command>, List<String>> argumentsByCommand = contextArguments.getArguments();
 		if (MapUtils.isEmpty(argumentsByCommand)) {

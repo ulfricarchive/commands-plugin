@@ -2,6 +2,7 @@ package com.ulfric.plugin.commands.internal;
 
 import java.util.Arrays;
 import java.util.StringJoiner;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.bukkit.command.CommandSender;
@@ -20,12 +21,12 @@ import com.ulfric.plugin.locale.TellService;
 
 final class Dispatcher extends org.bukkit.command.Command {
 
-	private final CommandRegistry registry;
 	final Invoker command;
+	final Consumer<Context> executor;
 
-	Dispatcher(CommandRegistry registry, Invoker command) {
+	Dispatcher(Consumer<Context> executor, Invoker command) {
 		super(command.getName(), command.getDescription(), command.getUsage(), command.getAliases());
-		this.registry = registry;
+		this.executor = executor;
 		this.command = command;
 	}
 
@@ -71,7 +72,7 @@ final class Dispatcher extends org.bukkit.command.Command {
 
 	private void run(Context context) {
 		try {
-			registry.dispatch(context);
+			executor.accept(context);
 		} catch (MissingPermissionException permissionCheck) {
 			TellService.sendMessage(context.getSender(), "command-no-permission",
 					Details.of("node", permissionCheck.getMessage()));
