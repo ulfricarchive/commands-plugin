@@ -44,6 +44,16 @@ public abstract class Command implements Runnable {
 		TellService.sendMessage(target, text, details);
 	}
 
+	protected final void internalError(String message, Throwable thrown) {
+		Details details = details();
+		details.add("error", thrown);
+		tell(message, details);
+
+		if (thrown != null) {
+			throw new RuntimeException(thrown); // TODO better handling - don't throw RTE
+		}
+	}
+
 	protected final <T> Optional<T> ifPlayer(Function<Player, T> function) {
 		if (sender() instanceof Player) {
 			return Optional.ofNullable(function.apply(player()));
