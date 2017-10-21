@@ -9,12 +9,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.bukkit.command.CommandSender;
 
+import com.ulfric.commons.bukkit.command.CommandSenderHelper;
 import com.ulfric.commons.naming.Name;
 import com.ulfric.dragoon.extension.intercept.asynchronous.Asynchronous;
 import com.ulfric.dragoon.reflect.Classes;
@@ -26,6 +28,11 @@ import com.ulfric.plugin.commands.argument.Arguments;
 import com.ulfric.plugin.commands.argument.MissingArgumentException;
 import com.ulfric.plugin.commands.argument.ResolutionRequest;
 import com.ulfric.plugin.commands.argument.Resolver;
+import com.ulfric.plugin.commands.confirmation.Confirmation;
+import com.ulfric.plugin.commands.confirmation.ConfirmationNotRequired;
+import com.ulfric.plugin.commands.confirmation.ConfirmationRequiredException;
+import com.ulfric.plugin.commands.confirmation.ExpiringConfirmation;
+import com.ulfric.plugin.commands.confirmation.RequireConfirmation;
 import com.ulfric.plugin.restrictions.RestrictedActionService;
 import com.ulfric.plugin.restrictions.RestrictedContext;
 import com.ulfric.tryto.TryTo;
@@ -56,6 +63,8 @@ public final class Invoker {
 	private final Map<String, Invoker> subcommands = new CaseInsensitiveMap<>();
 	private final String restrictionContext;
 	private final Asynchronous asynchronous;
+	private final RequireConfirmation confirmationContext;
+	private final Confirmation confirmation;
 
 	private Invoker(Class<? extends Command> command) {
 		this.command = command;
@@ -64,6 +73,8 @@ public final class Invoker {
 		this.permissions = createPermissions();
 		this.restrictionContext = restrictionContext();
 		this.asynchronous = asynchronousContext();
+		this.confirmationContext = confirmationContext();
+		this.confirmation = generateConfirmationFromConfirmationContext();
 	}
 
 	private Invoker superCommand() {
@@ -119,6 +130,18 @@ public final class Invoker {
 
 	private Asynchronous asynchronousContext() {
 		return Stereotypes.getFirst(command, Asynchronous.class);
+	}
+
+	private RequireConfirmation confirmationContext() {
+		return Stereotypes.getFirst(command, RequireConfirmation.class);
+	}
+
+	private Confirmation generateConfirmationFromConfirmationContext() {
+		if (confirmationContext == null) {
+			return ConfirmationNotRequired.INSTANCE;
+		}
+
+		return new ExpiringConfirmation(confirmationContext);
 	}
 
 	public void registerWithParent() {
@@ -201,6 +224,13 @@ public final class Invoker {
 
 			RestrictedActionService.doRestricted(() -> runUnrestricted(context), restriction);
 			return;
+		}
+
+		UUID uniqueId = CommandSenderHelper.getUniqueId(context.getSender());
+		if (uniqueId != null) {
+			if (!confirmation.test(uniqueId)) {
+				throw new ConfirmationRequiredException(confirmationContext.message());
+			}
 		}
 
 		runUnrestricted(context);

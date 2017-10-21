@@ -11,6 +11,7 @@ import com.ulfric.plugin.commands.Context;
 import com.ulfric.plugin.commands.MissingPermissionException;
 import com.ulfric.plugin.commands.MustBePlayerException;
 import com.ulfric.plugin.commands.argument.MissingArgumentException;
+import com.ulfric.plugin.commands.confirmation.ConfirmationRequiredException;
 import com.ulfric.plugin.locale.TellService;
 
 final class Runner implements Consumer<Context> {
@@ -58,6 +59,8 @@ final class Runner implements Consumer<Context> {
 			details.add("argument", requiredArgument.getMessage());
 		} catch (MustBePlayerException mustBePlayer) {
 			message = "command-must-be-player";
+		} catch (ConfirmationRequiredException confirmation) {
+			message = confirmation.getMessage();
 		} catch (CommandException exit) {
 			message = exit.getMessage();
 		} catch (Exception exception) {
