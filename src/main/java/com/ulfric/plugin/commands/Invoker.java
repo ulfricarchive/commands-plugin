@@ -217,6 +217,13 @@ public final class Invoker {
 	}
 
 	public void run(Context context) {
+		UUID uniqueId = CommandSenderHelper.getUniqueId(context.getSender());
+		if (uniqueId != null) {
+			if (!confirmation.test(uniqueId)) {
+				throw new ConfirmationRequiredException(confirmationContext.message());
+			}
+		}
+
 		if (restrictionContext != null) {
 			RestrictedContext restriction = new RestrictedContext();
 			restriction.setAction(restrictionContext);
@@ -224,13 +231,6 @@ public final class Invoker {
 
 			RestrictedActionService.doRestricted(() -> runUnrestricted(context), restriction);
 			return;
-		}
-
-		UUID uniqueId = CommandSenderHelper.getUniqueId(context.getSender());
-		if (uniqueId != null) {
-			if (!confirmation.test(uniqueId)) {
-				throw new ConfirmationRequiredException(confirmationContext.message());
-			}
 		}
 
 		runUnrestricted(context);
