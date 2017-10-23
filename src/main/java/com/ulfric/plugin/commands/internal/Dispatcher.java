@@ -3,6 +3,7 @@ package com.ulfric.plugin.commands.internal;
 import java.util.Arrays;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.bukkit.command.CommandSender;
@@ -23,11 +24,13 @@ final class Dispatcher extends org.bukkit.command.Command {
 
 	final Invoker command;
 	final Consumer<Context> executor;
+	private final Logger logger;
 
-	Dispatcher(Consumer<Context> executor, Invoker command) {
+	Dispatcher(Consumer<Context> executor, Invoker command, Logger logger) {
 		super(command.getName(), command.getDescription(), command.getUsage(), command.getAliases());
 		this.executor = executor;
 		this.command = command;
+		this.logger = logger;
 	}
 
 	@Override
@@ -41,6 +44,7 @@ final class Dispatcher extends org.bukkit.command.Command {
 
 	private Context createContext(CommandSender sender, String label, String[] arguments) {
 		Context context = new Context();
+		context.setLogger(logger);
 		context.setCreation(TemporalHelper.instantNow());
 		context.setSender(sender);
 		context.setCommandLine(recreateCommandLine(label, arguments));

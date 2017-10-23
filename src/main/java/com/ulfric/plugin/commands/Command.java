@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -50,7 +52,11 @@ public abstract class Command implements Runnable {
 		tell(message, details);
 
 		if (thrown != null) {
-			throw new RuntimeException(thrown); // TODO better handling - don't throw RTE
+			Logger logger = context.getLogger();
+			if (logger != null) {
+				logger.log(Level.SEVERE, message, thrown);
+			}
+			throw new RuntimeException(message, thrown); // TODO better handling - don't throw RTE
 		}
 	}
 

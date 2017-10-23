@@ -1,12 +1,13 @@
 package com.ulfric.plugin.commands;
 
+import java.time.Instant;
+import java.util.logging.Logger;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.ulfric.commons.value.Bean;
 import com.ulfric.plugin.commands.argument.Arguments;
-
-import java.time.Instant;
 
 public class Context extends Bean {
 
@@ -26,6 +27,7 @@ public class Context extends Bean {
 	private Command command;
 	private Instant creation;
 	private String commandLine;
+	private Logger logger;
 
 	public CommandSender getSender() {
 		return sender;
@@ -73,6 +75,14 @@ public class Context extends Bean {
 
 	public void setCommandLine(String commandLine) {
 		this.commandLine = commandLine;
+	}
+
+	public Logger getLogger() {
+		return logger;
+	}
+
+	public void setLogger(Logger logger) {
+		this.logger = logger;
 	}
 
 }

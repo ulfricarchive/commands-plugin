@@ -3,6 +3,7 @@ package com.ulfric.plugin.commands.internal;
 import java.lang.reflect.Field;
 import java.util.Objects;
 import java.util.concurrent.Executor;
+import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
@@ -25,6 +26,9 @@ public class CommandRegistry extends SkeletalRegistry {
 	@Inject
 	private ObjectFactory factory;
 
+	@Inject(optional = true)
+	private Logger logger;
+
 	public CommandRegistry() {
 		bukkitRegistry = lookupBukkitRegistry();
 	}
@@ -45,7 +49,7 @@ public class CommandRegistry extends SkeletalRegistry {
 
 		if (command.isRoot()) {
 			Runner runner = new Runner(this, executor(command));
-			Dispatcher dispatcher = new Dispatcher(runner, command);
+			Dispatcher dispatcher = new Dispatcher(runner, command, logger);
 			bukkitRegistry.register(dispatcher.getName(), dispatcher);
 		}
 	}
