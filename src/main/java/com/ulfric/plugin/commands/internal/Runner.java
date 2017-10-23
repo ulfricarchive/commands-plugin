@@ -36,7 +36,7 @@ final class Runner implements Consumer<Context> {
 	}
 
 	private void handleError(Context context, Exception thrown) {
-		Details details = Details.none();
+		Details details = new Details();
 		details.add("context", context);
 		details.add("error", thrown);
 

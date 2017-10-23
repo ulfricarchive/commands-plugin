@@ -94,7 +94,7 @@ public abstract class Command implements Runnable {
 	}
 
 	public Details details() {
-		Details details = Details.none();
+		Details details = new Details();
 
 		instanceFields().forEach(field -> details.add(field.getName(), readField(field)));
 
