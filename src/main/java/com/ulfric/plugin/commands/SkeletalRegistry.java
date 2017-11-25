@@ -1,6 +1,7 @@
 package com.ulfric.plugin.commands;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,10 +52,16 @@ public abstract class SkeletalRegistry implements Registry {
 			return;
 		}
 
+		Map<Class<? extends Command>, String> labels = context.getLabels().getLabels();
+		if (labels == null) {
+			labels = new HashMap<>();
+			context.getLabels().setLabels(labels);
+		}
 		for (int x = 0, l = arguments.size(); x < l; x++) {
 			String argument = arguments.get(x);
 			Invoker child = invoker.getChild(argument);
 			if (child != null) {
+				labels.put(child.getCommand(), argument);
 				if (x != 0) {
 					argumentsByCommand.put(invoker.getCommand(), new ArrayList<>(arguments.subList(0, x)));
 				}
