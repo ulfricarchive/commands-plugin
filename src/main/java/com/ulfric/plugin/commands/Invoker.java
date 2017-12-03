@@ -10,18 +10,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.bukkit.command.CommandSender;
 
+import com.google.common.base.Throwables;
 import com.ulfric.commons.bukkit.command.CommandSenderHelper;
 import com.ulfric.commons.naming.Name;
 import com.ulfric.dragoon.extension.intercept.asynchronous.Asynchronous;
+import com.ulfric.dragoon.extension.intercept.asynchronous.AsynchronousInterceptor;
 import com.ulfric.dragoon.reflect.Classes;
 import com.ulfric.dragoon.reflect.Instances;
 import com.ulfric.dragoon.stereotype.Stereotypes;
+import com.ulfric.plugin.Plugin;
 import com.ulfric.plugin.commands.argument.Argument;
 import com.ulfric.plugin.commands.argument.ArgumentDefinition;
 import com.ulfric.plugin.commands.argument.Arguments;
@@ -35,6 +42,7 @@ import com.ulfric.plugin.commands.confirmation.ExpiringConfirmation;
 import com.ulfric.plugin.commands.confirmation.RequireConfirmation;
 import com.ulfric.plugin.restrictions.RestrictedActionService;
 import com.ulfric.plugin.restrictions.RestrictedContext;
+import com.ulfric.plugin.tasks.executor.EnsureMainThreadExecutorSupplier;
 import com.ulfric.tryto.TryTo;
 
 public final class Invoker {
@@ -108,10 +116,18 @@ public final class Invoker {
 			definition.setOptional(argument.optional());
 			definition.setName(field.getName());
 			definition.setType(field.getGenericType());
+			definition.setExecutor(getArgumentExecutor(field));
 			arguments.add(definition);
 		}
 
 		return arguments;
+	}
+
+	private ExecutorService getArgumentExecutor(Field field) {
+		Asynchronous asynchronous = Stereotypes.getFirst(field, Asynchronous.class);
+		Class<? extends Supplier<? extends ExecutorService>> executorType
+				= asynchronous == null ? EnsureMainThreadExecutorSupplier.class : asynchronous.value();
+		return AsynchronousInterceptor.executor(Plugin.getStandardFactory(), executorType);
 	}
 
 	private List<Permission> createPermissions() { // TODO support repeatable
@@ -220,7 +236,7 @@ public final class Invoker {
 		UUID uniqueId = CommandSenderHelper.getUniqueId(context.getSender());
 		if (uniqueId != null) {
 			if (!confirmation.test(uniqueId)) {
-				throw new ConfirmationRequiredException(confirmationContext.message());
+				throw new ConfirmationRequiredException(context, confirmationContext.message());
 			}
 		}
 
@@ -241,18 +257,23 @@ public final class Invoker {
 		command.context = context;
 		context.setCommand(command);
 
-		prerun(context);
-
-		command.run();
+		try {
+			prerun(context)
+				.thenRun(command)
+				.get();
+		} catch (InterruptedException | ExecutionException exception) {
+			Throwables.throwIfUnchecked(exception);
+			throw new RuntimeException(exception);
+		}
 	}
 
-	private void prerun(Context context) {
+	private CompletableFuture<Void> prerun(Context context) {
 		if (!isRoot()) {
 			superCommand.prerun(context);
 		}
 
 		runPermissionsChecks(context);
-		setupArguments(context);
+		return setupArguments(context);
 	}
 
 	private void runPermissionsChecks(Context context) {
@@ -262,29 +283,31 @@ public final class Invoker {
 				continue;
 			}
 
-			throw new MissingPermissionException(permission.value(), permission.message());
+			throw new MissingPermissionException(context, permission.value(), permission.message());
 		}
 	}
 
-	private void setupArguments(Context context) {
+	private CompletableFuture<Void> setupArguments(Context context) {
+		CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
 		for (ArgumentDefinition definition : arguments) {
 			ResolutionRequest request = new ResolutionRequest();
 			request.setContext(context);
 			request.setDefinition(definition);
 			request.setCommand(command);
-			setupArgument(request);
+			future = future.thenRunAsync(() -> setupArgument(request), definition.getExecutor());
 		}
+		return future;
 	}
 
 	private void setupArgument(ResolutionRequest request) { // TODO cleanup method
 		Arguments commandArguments = request.getContext().getArguments();
 		if (commandArguments.getArguments() == null) {
-			missingArgument(request.getDefinition());
+			missingArgument(request);
 			return;
 		}
 		List<String> enteredArguments = commandArguments.getArguments().get(command);
 		if (enteredArguments == null) {
-			missingArgument(request.getDefinition());
+			missingArgument(request);
 			return;
 		}
 
@@ -304,12 +327,14 @@ public final class Invoker {
 			return;
 		}
 
-		missingArgument(request.getDefinition());
+		missingArgument(request);
 	}
 
-	private void missingArgument(ArgumentDefinition definition) {
+	private void missingArgument(ResolutionRequest request) {
+		ArgumentDefinition definition = request.getDefinition();
 		if (!definition.getOptional()) {
-			throw new MissingArgumentException(definition.getName(), definition.getMessage());
+			Context context = request.getContext();
+			throw new MissingArgumentException(context, definition.getName(), definition.getMessage());
 		}
 	}
 

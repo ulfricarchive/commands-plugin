@@ -2,12 +2,14 @@ package com.ulfric.plugin.commands.internal;
 
 import java.util.Arrays;
 import java.util.StringJoiner;
-import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.bukkit.command.CommandSender;
 
+import com.ulfric.broken.ErrorHandler;
+import com.ulfric.broken.StandardCriteria;
 import com.ulfric.commons.time.TemporalHelper;
 import com.ulfric.i18n.content.Details;
 import com.ulfric.plugin.commands.CommandException;
@@ -23,14 +25,53 @@ import com.ulfric.plugin.locale.TellService;
 final class Dispatcher extends org.bukkit.command.Command {
 
 	final Invoker command;
-	final Consumer<Context> executor;
+	final Runner runner;
 	private final Logger logger;
+	private final ErrorHandler errorHandler;
 
-	Dispatcher(Consumer<Context> executor, Invoker command, Logger logger) {
+	Dispatcher(Runner runner, Invoker command, Logger logger, ErrorHandler errorHandler) {
 		super(command.getName(), command.getDescription(), command.getUsage(), command.getAliases());
-		this.executor = executor;
+		this.runner = runner;
 		this.command = command;
 		this.logger = logger;
+		this.errorHandler = errorHandler;
+
+		setupErrorHandler();
+	}
+
+	private void setupErrorHandler() { // TODO better way for doing this
+		errorHandler.withHandler(MissingPermissionException.class)
+			.setCriteria(StandardCriteria.EXACT_TYPE_MATCH)
+			.setAction(permissionCheck ->
+				TellService.sendMessage(permissionCheck.getContext().getSender(), "command-no-permission",
+					Details.of("node", permissionCheck.getMessage())))
+			.add();
+
+		errorHandler.withHandler(MissingArgumentException.class)
+			.setCriteria(StandardCriteria.EXACT_TYPE_MATCH)
+			.setAction(requiredArgument ->
+				TellService.sendMessage(requiredArgument.getContext().getSender(), "command-missing-argument",
+					Details.of("argument", requiredArgument.getMessage())))
+			.add();
+
+		errorHandler.withHandler(MustBePlayerException.class)
+			.setCriteria(StandardCriteria.EXACT_TYPE_MATCH)
+			.setAction(mustBePlayer ->
+				TellService.sendMessage(mustBePlayer.getContext().getSender(), "command-must-be-player",
+					Details.of("sender", mustBePlayer.getMessage())))
+			.add();
+
+		errorHandler.withHandler(CommandException.class)
+			.setCriteria(StandardCriteria.INSTANCE_OF)
+			.skipIfHandled()
+			.setAction(exit -> TellService.sendMessage(exit.getContext().getSender(), exit.getMessage()))
+			.add();
+
+		errorHandler.withHandler(Exception.class)
+			.setCriteria(StandardCriteria.INSTANCE_OF)
+			.skipIfHandled()
+			.setAction(exception -> logger.log(Level.SEVERE, "Command failed execution", exception))
+			.add();
 	}
 
 	@Override
@@ -64,7 +105,8 @@ final class Dispatcher extends org.bukkit.command.Command {
 
 	private void addArguments(Context context, String[] enteredArguments) {
 		Arguments arguments = new Arguments();
-		arguments.setAllArguments(Arrays.stream(enteredArguments).collect(Collectors.toList())); // TODO handle "quoted arguments"
+		arguments.setAllArguments(Arrays.stream(enteredArguments).collect(Collectors.toList())); // TODO handle "quoted
+																									// arguments"
 		context.setArguments(arguments);
 	}
 
@@ -75,23 +117,8 @@ final class Dispatcher extends org.bukkit.command.Command {
 	}
 
 	private void run(Context context) {
-		try {
-			executor.accept(context);
-		} catch (MissingPermissionException permissionCheck) {
-			TellService.sendMessage(context.getSender(), "command-no-permission",
-					Details.of("node", permissionCheck.getMessage()));
-		} catch (MissingArgumentException requiredArgument) {
-			TellService.sendMessage(context.getSender(), "command-missing-argument",
-					Details.of("argument", requiredArgument.getMessage()));
-		} catch (MustBePlayerException mustBePlayer) {
-			TellService.sendMessage(context.getSender(), "command-must-be-player",
-					Details.of("sender", mustBePlayer.getMessage()));
-		} catch (CommandException exit) {
-			TellService.sendMessage(context.getSender(), exit.getMessage());
-		} catch (Exception exception) {
-			TellService.sendMessage(context.getSender(), "command-failed-execution");
-			throw new CommandExecutionException(exception);
-		}
+		runner.apply(context)
+			.exceptionally(errorHandler.asFutureHandler());
 	}
 
 }

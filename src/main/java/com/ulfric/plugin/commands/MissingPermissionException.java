@@ -4,8 +4,8 @@ public class MissingPermissionException extends CommandException {
 
 	private final String permissionMessage;
 
-	public MissingPermissionException(String node, String permissionMessage) {
-		super(node);
+	public MissingPermissionException(Context context, String node, String permissionMessage) {
+		super(context, node);
 
 		this.permissionMessage = permissionMessage;
 	}

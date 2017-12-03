@@ -9,14 +9,17 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
 import org.bukkit.plugin.SimplePluginManager;
 
+import com.ulfric.broken.ErrorHandler;
 import com.ulfric.commons.reflect.FieldHelper;
 import com.ulfric.dragoon.ObjectFactory;
 import com.ulfric.dragoon.extension.inject.Inject;
 import com.ulfric.dragoon.extension.intercept.asynchronous.Asynchronous;
 import com.ulfric.dragoon.extension.intercept.asynchronous.AsynchronousInterceptor;
 import com.ulfric.dragoon.extension.intercept.asynchronous.CurrentThreadExecutor;
+import com.ulfric.plugin.broken.Channel;
 import com.ulfric.plugin.commands.Invoker;
 import com.ulfric.plugin.commands.SkeletalRegistry;
+import com.ulfric.plugin.tasks.executor.EnsureMainThreadExecutorSupplier;
 import com.ulfric.tryto.TryTo;
 
 public class CommandRegistry extends SkeletalRegistry {
@@ -28,6 +31,10 @@ public class CommandRegistry extends SkeletalRegistry {
 
 	@Inject(optional = true)
 	private Logger logger;
+
+	@Inject
+	@Channel("commands")
+	private ErrorHandler errorHandler;
 
 	public CommandRegistry() {
 		bukkitRegistry = lookupBukkitRegistry();
@@ -49,7 +56,7 @@ public class CommandRegistry extends SkeletalRegistry {
 
 		if (command.isRoot()) {
 			Runner runner = new Runner(this, executor(command));
-			Dispatcher dispatcher = new Dispatcher(runner, command, logger);
+			Dispatcher dispatcher = new Dispatcher(runner, command, logger, errorHandler);
 			bukkitRegistry.register(dispatcher.getName(), dispatcher);
 		}
 	}
@@ -58,7 +65,7 @@ public class CommandRegistry extends SkeletalRegistry {
 		Asynchronous asynchronous = invoker.getAsynchronous();
 
 		if (asynchronous == null) {
-			return CurrentThreadExecutor.INSTANCE;
+			return AsynchronousInterceptor.executor(factory, EnsureMainThreadExecutorSupplier.class);
 		}
 
 		return AsynchronousInterceptor.executor(factory, asynchronous);

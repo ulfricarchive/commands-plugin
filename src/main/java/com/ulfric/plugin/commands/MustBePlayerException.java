@@ -2,10 +2,10 @@ package com.ulfric.plugin.commands;
 
 import org.bukkit.command.CommandSender;
 
-public class MustBePlayerException extends RuntimeException {
+public class MustBePlayerException extends CommandException {
 
-	public MustBePlayerException(CommandSender sender) {
-		super(sender.getName());
+	public MustBePlayerException(Context context, CommandSender sender) {
+		super(context, sender.getName());
 	}
 
 }

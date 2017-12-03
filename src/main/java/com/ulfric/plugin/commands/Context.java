@@ -18,7 +18,7 @@ public class Context extends Bean {
 			return (Player) sender;
 		}
 
-		throw new MustBePlayerException(sender);
+		throw new MustBePlayerException(context, sender);
 	}
 
 	private CommandSender sender;
