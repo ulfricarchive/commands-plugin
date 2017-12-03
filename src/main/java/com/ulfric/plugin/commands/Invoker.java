@@ -1,5 +1,6 @@
 package com.ulfric.plugin.commands;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -11,7 +12,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -20,8 +20,8 @@ import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.bukkit.command.CommandSender;
 
-import com.google.common.base.Throwables;
 import com.ulfric.commons.bukkit.command.CommandSenderHelper;
+import com.ulfric.commons.concurrent.FutureHelper;
 import com.ulfric.commons.naming.Name;
 import com.ulfric.dragoon.extension.intercept.asynchronous.Asynchronous;
 import com.ulfric.dragoon.extension.intercept.asynchronous.AsynchronousInterceptor;
@@ -70,7 +70,7 @@ public final class Invoker {
 	private final List<ArgumentDefinition> arguments;
 	private final Map<String, Invoker> subcommands = new CaseInsensitiveMap<>();
 	private final String restrictionContext;
-	private final Asynchronous asynchronous;
+	private final ExecutorService executor;
 	private final RequireConfirmation confirmationContext;
 	private final Confirmation confirmation;
 
@@ -80,7 +80,7 @@ public final class Invoker {
 		this.arguments = createArgumentDefinitions();
 		this.permissions = createPermissions();
 		this.restrictionContext = restrictionContext();
-		this.asynchronous = asynchronousContext();
+		this.executor = executor(command);
 		this.confirmationContext = confirmationContext();
 		this.confirmation = generateConfirmationFromConfirmationContext();
 	}
@@ -116,15 +116,15 @@ public final class Invoker {
 			definition.setOptional(argument.optional());
 			definition.setName(field.getName());
 			definition.setType(field.getGenericType());
-			definition.setExecutor(getArgumentExecutor(field));
+			definition.setExecutor(executor(field));
 			arguments.add(definition);
 		}
 
 		return arguments;
 	}
 
-	private ExecutorService getArgumentExecutor(Field field) {
-		Asynchronous asynchronous = Stereotypes.getFirst(field, Asynchronous.class);
+	private ExecutorService executor(AnnotatedElement element) {
+		Asynchronous asynchronous = Stereotypes.getFirst(element, Asynchronous.class);
 		Class<? extends Supplier<? extends ExecutorService>> executorType
 				= asynchronous == null ? EnsureMainThreadExecutorSupplier.class : asynchronous.value();
 		return AsynchronousInterceptor.executor(Plugin.getStandardFactory(), executorType);
@@ -142,10 +142,6 @@ public final class Invoker {
 		}
 
 		return restricted.value().isEmpty() ? null : restricted.value();
-	}
-
-	private Asynchronous asynchronousContext() {
-		return Stereotypes.getFirst(command, Asynchronous.class);
 	}
 
 	private RequireConfirmation confirmationContext() {
@@ -224,15 +220,15 @@ public final class Invoker {
 		return description == null ? "" : description.value();
 	}
 
-	public Asynchronous getAsynchronous() {
-		return asynchronous;
+	public ExecutorService getExecutor() {
+		return executor;
 	}
 
 	public boolean isRoot() {
 		return superCommand == null;
 	}
 
-	public void run(Context context) {
+	public CompletableFuture<Void> run(Context context) {
 		UUID uniqueId = CommandSenderHelper.getUniqueId(context.getSender());
 		if (uniqueId != null) {
 			if (!confirmation.test(uniqueId)) {
@@ -245,26 +241,20 @@ public final class Invoker {
 			restriction.setAction(restrictionContext);
 			restriction.setSender(context.getSender());
 
-			RestrictedActionService.doRestricted(() -> runUnrestricted(context), restriction);
-			return;
+			CompletableFuture<Void> command = RestrictedActionService.callRestricted(() -> runUnrestricted(context), restriction);
+			return command == null ? FutureHelper.empty() : command;
 		}
 
-		runUnrestricted(context);
+		return runUnrestricted(context);
 	}
 
-	private void runUnrestricted(Context context) {
+	private CompletableFuture<Void> runUnrestricted(Context context) {
 		Command command = Instances.instance(this.command);
 		command.context = context;
 		context.setCommand(command);
 
-		try {
-			prerun(context)
-				.thenRun(command)
-				.get();
-		} catch (InterruptedException | ExecutionException exception) {
-			Throwables.throwIfUnchecked(exception.getCause());
-			throw new RuntimeException(exception);
-		}
+		return prerun(context)
+				.thenRunAsync(command, executor);
 	}
 
 	private CompletableFuture<Void> prerun(Context context) {

@@ -25,13 +25,11 @@ import com.ulfric.plugin.locale.TellService;
 final class Dispatcher extends org.bukkit.command.Command {
 
 	final Invoker command;
-	final Runner runner;
 	private final Logger logger;
 	private final ErrorHandler errorHandler;
 
-	Dispatcher(Runner runner, Invoker command, Logger logger, ErrorHandler errorHandler) {
+	Dispatcher(Invoker command, Logger logger, ErrorHandler errorHandler) {
 		super(command.getName(), command.getDescription(), command.getUsage(), command.getAliases());
-		this.runner = runner;
 		this.command = command;
 		this.logger = logger;
 		this.errorHandler = errorHandler;
@@ -117,7 +115,7 @@ final class Dispatcher extends org.bukkit.command.Command {
 	}
 
 	private void run(Context context) {
-		runner.apply(context)
+		command.run(context)
 			.exceptionally(errorHandler.asFutureHandler());
 	}
 
