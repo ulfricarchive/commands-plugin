@@ -6,19 +6,40 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
 
+import org.bukkit.Server;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import com.google.common.truth.Truth;
 import com.ulfric.commons.naming.Name;
+import com.ulfric.plugin.Plugin;
 import com.ulfric.plugin.commands.argument.Argument;
 import com.ulfric.plugin.commands.argument.MissingArgumentException;
 import com.ulfric.plugin.commands.argument.ResolutionRequest;
 import com.ulfric.plugin.commands.argument.Resolver;
+import com.ulfric.plugin.tasks.Scheduler;
 import com.ulfric.veracity.Veracity;
 
 class InvokerTest extends ContextTestSuite {
+
+	private Server mockServer;
+
+	@BeforeEach
+	void setup() { // TODO remove this ugly solution
+		mockServer = Mockito.mock(Server.class);
+		Mockito.doReturn(true).when(mockServer).isPrimaryThread();
+		Plugin.getStandardFactory().bind(Server.class).toValue(mockServer);
+		Plugin.getStandardFactory().bind(Scheduler.class).toValue(new Scheduler(Mockito.mock(Plugin.class)));
+	}
+
+	@AfterEach
+	void teardown() {
+		Plugin.getStandardFactory().bind(Server.class).toNothing();
+		Plugin.getStandardFactory().bind(Scheduler.class).toNothing();
+	}
 
 	@Test
 	void testOfInvoker() {

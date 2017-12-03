@@ -262,7 +262,7 @@ public final class Invoker {
 				.thenRun(command)
 				.get();
 		} catch (InterruptedException | ExecutionException exception) {
-			Throwables.throwIfUnchecked(exception);
+			Throwables.throwIfUnchecked(exception.getCause());
 			throw new RuntimeException(exception);
 		}
 	}
