@@ -20,6 +20,7 @@ public class PermissionVerificationStage extends Stage<List<Permission>> {
 		for (Permission permission : permissions) {
 			if (!sender.hasPermission(permission.value())) {
 				event.cancel(new MissingPermissionException(event.getContext(), permission.message()));
+				return;
 			}
 		}
 	}
