@@ -201,7 +201,9 @@ public class Invoker implements CommandExecutor {
 		context.setCommandType(context.getArguments().getArguments().lastKey());
 		context.setExecutionId(UUID.randomUUID());
 
-		handle(context)
+		Invoker invoker = factory.request(Invoker.class, context.getArguments().getArguments().lastKey());
+
+		invoker.handle(context)
 			.exceptionally(handler.asFutureHandler());
 
 		return true;
@@ -242,10 +244,7 @@ public class Invoker implements CommandExecutor {
 				EnteredSyntax childEntered = new EnteredSyntax();
 				childEntered.setLabel(argument);
 
-				if (x != 0) {
-					entered.setArguments(new ArrayList<>(enteredArguments.subList(0, x)));
-				}
-
+				entered.setArguments(new ArrayList<>(enteredArguments.subList(0, x)));
 				childEntered.setArguments(new ArrayList<>(enteredArguments.subList(x + 1, l)));
 				argumentsByCommand.put(child.command, childEntered);
 				child.resolveCommandToArgumentHierarchyPositions(arguments);
@@ -292,18 +291,19 @@ public class Invoker implements CommandExecutor {
 	}
 
 	private CompletableFuture<Void> setupArguments(Context context) {
-		CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
+		CompletableFuture<Void> future;
+		if (parent != null) {
+			future = parent.setupArguments(context);
+		} else {
+			future = CompletableFuture.completedFuture(null);
+		}
+
 		for (ArgumentDefinition definition : arguments) {
-			System.out.println("Handling " + definition.getName());
 			ResolutionRequest request = new ResolutionRequest();
 			request.setContext(context);
 			request.setDefinition(definition);
 			request.setCommand(command);
 			future = future.thenRunAsync(() -> setupArgument(request), definition.getExecutor());
-		}
-
-		if (parent != null) {
-			future = future.thenCompose(ignore -> parent.setupArguments(context));
 		}
 
 		return future;
