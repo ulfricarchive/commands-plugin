@@ -21,10 +21,8 @@ import com.ulfric.dragoon.exception.Try;
 import com.ulfric.i18n.content.Details;
 import com.ulfric.plugin.locale.InputService;
 import com.ulfric.plugin.locale.TellService;
-import com.ulfric.plugin.restrictions.RestrictedActionService;
-import com.ulfric.plugin.restrictions.RestrictedContext;
 
-public abstract class Command implements Runnable {
+public abstract class Command implements Runnable, CommandExtension {
 
 	private static final Map<Class<?>, List<Field>> INSTANCE_FIELDS = new IdentityHashMap<>();
 
@@ -66,13 +64,6 @@ public abstract class Command implements Runnable {
 		return Optional.empty();
 	}
 
-	protected final void doRestricted(Runnable runnable, String code) {
-		RestrictedContext action = new RestrictedContext();
-		action.setSender(sender());
-		action.setAction(code);
-		RestrictedActionService.doRestricted(runnable, action);
-	}
-
 	protected final void requestOnSign(String text, String callback) {
 		Player player = player();
 		InputService.requestOnSign(player, text,
@@ -87,7 +78,8 @@ public abstract class Command implements Runnable {
 		return Context.getPlayer(context);
 	}
 
-	protected final CommandSender sender() {
+	@Override
+	public final CommandSender sender() {
 		return context.getSender();
 	}
 
