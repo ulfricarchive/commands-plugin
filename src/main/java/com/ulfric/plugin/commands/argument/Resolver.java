@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import com.ulfric.commons.collection.Computations;
+import com.ulfric.plugin.commands.argument.defaults.ContextResolver;
 import com.ulfric.plugin.commands.argument.defaults.IdentityResolver;
 import com.ulfric.plugin.commands.argument.defaults.IntegerResolver;
 import com.ulfric.plugin.commands.argument.defaults.MatchResolver;
@@ -21,6 +22,7 @@ public abstract class Resolver<T> implements Function<ResolutionRequest, T> {
 	private static final Map<Type, List<Resolver<?>>> RESOLVERS = new HashMap<>();
 
 	static {
+		register(new ContextResolver());
 		register(new IdentityResolver());
 		register(new SlugResolver());
 		register(new MatchResolver());

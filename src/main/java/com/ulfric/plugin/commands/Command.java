@@ -109,4 +109,8 @@ public abstract class Command implements Runnable, CommandExtension {
 				.collect(Collectors.toList());
 	}
 
+	public void setContext(Context context) {
+		this.context = context;
+	}
+
 }

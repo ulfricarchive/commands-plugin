@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
@@ -52,8 +53,8 @@ import com.ulfric.tryto.TryTo;
 public class Invoker implements CommandExecutor {
 
 	private final Class<? extends Command> command;
-	private final String name = name();
-	private final List<String> aliases = aliases();
+	private final String name;
+	private final List<String> aliases;
 	private final Map<String, Invoker> children = new CaseInsensitiveMap<>();
 
 	@Inject
@@ -74,12 +75,13 @@ public class Invoker implements CommandExecutor {
 		Objects.requireNonNull(command, "command");
 
 		this.command = command;
-		this.executor = executor(command);
-		this.parent = parent();
+		this.name = name();
+		this.aliases = aliases();
 	}
 
 	@PostConstruct
 	private void setup() {
+		parent = parent();
 		executor = executor(command);
 		parent = parent();
 		arguments = arguments();
@@ -197,6 +199,7 @@ public class Invoker implements CommandExecutor {
 		context.setSender(sender);
 		context.setArguments(resolveCommandToArgumentHierarchyPositions(label, args));
 		context.setCommandType(context.getArguments().getArguments().lastKey());
+		context.setExecutionId(UUID.randomUUID());
 
 		handle(context)
 			.exceptionally(handler.asFutureHandler());
@@ -256,16 +259,9 @@ public class Invoker implements CommandExecutor {
 	}
 
 	private CompletableFuture<Void> handle(Context context) {
-		CommandPreRunEvent event = new CommandPreRunEvent(context);
-		pluginManager.callEvent(event);
-
-		CommandException failure = event.getFailure();
+		CommandException failure = callEvents(context);
 		if (failure != null) {
 			return FutureHelper.exceptionally(failure);
-		}
-
-		if (event.isCancelled()) {
-			return FutureHelper.empty();
 		}
 
 		Class<? extends Command> command = context.getCommandType();
@@ -275,20 +271,41 @@ public class Invoker implements CommandExecutor {
 
 		Command run = factory.request(command);
 
+		run.setContext(context);
 		context.setCommand(run);
+
 		return setupArguments(context)
 			.thenRunAsync(run, executor);
+	}
+
+	private CommandException callEvents(Context context) {
+		if (parent != null) {
+			CommandException exception = parent.callEvents(context);
+			if (exception != null) {
+				return exception;
+			}
+		}
+
+		CommandPreRunEvent event = new CommandPreRunEvent(context, command);
+		pluginManager.callEvent(event);
+		return event.getFailure();
 	}
 
 	private CompletableFuture<Void> setupArguments(Context context) {
 		CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
 		for (ArgumentDefinition definition : arguments) {
+			System.out.println("Handling " + definition.getName());
 			ResolutionRequest request = new ResolutionRequest();
 			request.setContext(context);
 			request.setDefinition(definition);
 			request.setCommand(command);
 			future = future.thenRunAsync(() -> setupArgument(request), definition.getExecutor());
 		}
+
+		if (parent != null) {
+			future = future.thenCompose(ignore -> parent.setupArguments(context));
+		}
+
 		return future;
 	}
 

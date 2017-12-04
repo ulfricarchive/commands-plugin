@@ -8,7 +8,7 @@ import org.bukkit.event.HandlerList;
 
 import com.ulfric.plugin.commands.exception.CommandException;
 
-public class CommandPreRunEvent extends Event implements Cancellable {
+public class CommandPreRunEvent extends Event {
 
 	private static final HandlerList HANDLERS = new HandlerList();
 
@@ -17,33 +17,28 @@ public class CommandPreRunEvent extends Event implements Cancellable {
 	}
 
 	private final Context context;
-	private boolean cancelled;
+	private final Class<? extends Command> commandType;
 	private CommandException failure;
 
-	public CommandPreRunEvent(Context context) {
+	public CommandPreRunEvent(Context context, Class<? extends Command> commandType) {
 		Objects.requireNonNull(context, "context");
+		Objects.requireNonNull(commandType, "commandType");
 
 		this.context = context;
+		this.commandType = commandType;
 	}
 
 	public Context getContext() {
 		return context;
 	}
 
-	@Override
-	public boolean isCancelled() {
-		return cancelled;
-	}
-
-	@Override
-	public void setCancelled(boolean cancelled) {
-		this.cancelled = cancelled;
+	public Class<? extends Command> getCommandType() {
+		return commandType;
 	}
 
 	public void cancel(CommandException failure) {
 		Objects.requireNonNull(failure, "failure");
 
-		setCancelled(true);
 		this.failure = failure;
 	}
 

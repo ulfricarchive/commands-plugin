@@ -1,5 +1,7 @@
 package com.ulfric.plugin.commands;
 
+import java.util.UUID;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -23,6 +25,7 @@ public class Context extends Bean {
 	private Arguments arguments;
 	private Class<? extends Command> commandType;
 	private Command command;
+	private UUID executionId;
 
 	public CommandSender getSender() {
 		return sender;
@@ -54,6 +57,14 @@ public class Context extends Bean {
 
 	public void setCommand(Command command) {
 		this.command = command;
+	}
+
+	public UUID getExecutionId() {
+		return executionId;
+	}
+
+	public void setExecutionId(UUID executionId) {
+		this.executionId = executionId;
 	}
 
 }
