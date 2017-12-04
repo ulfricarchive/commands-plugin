@@ -55,34 +55,34 @@ public class CommandsContainer extends Container {
 		errorHandler.withHandler(MissingPermissionException.class)
 			.setCriteria(StandardCriteria.EXACT_TYPE_MATCH)
 			.setAction(permissionCheck ->
-				TellService.sendMessage(permissionCheck.getContext().getSender(), "command-no-permission",
-					Details.of("node", permissionCheck.getMessage())))
+				TellService.sendMessage(permissionCheck.getContext().getSender(), permissionCheck.getPermissionMessage(),
+					Details.of("node", permissionCheck.getPermissionNode())))
 			.add();
 
 		errorHandler.withHandler(MissingArgumentException.class)
 			.setCriteria(StandardCriteria.EXACT_TYPE_MATCH)
 			.setAction(requiredArgument ->
-				TellService.sendMessage(requiredArgument.getContext().getSender(), "command-missing-argument",
-					Details.of("argument", requiredArgument.getMessage())))
+				TellService.sendMessage(requiredArgument.getContext().getSender(), requiredArgument.getDefinition().getMessage(),
+					Details.of("argument", requiredArgument.getDefinition())))
 			.add();
 	
 		errorHandler.withHandler(MustBePlayerException.class)
 			.setCriteria(StandardCriteria.EXACT_TYPE_MATCH)
 			.setAction(mustBePlayer ->
-				TellService.sendMessage(mustBePlayer.getContext().getSender(), "command-must-be-player",
-					Details.of("sender", mustBePlayer.getMessage())))
+				TellService.sendMessage(mustBePlayer.getContext().getSender(), "command-must-be-player"))
 			.add();
 	
 		errorHandler.withHandler(CommandException.class)
 			.setCriteria(StandardCriteria.INSTANCE_OF)
 			.skipIfHandled()
-			.setAction(exit -> TellService.sendMessage(exit.getContext().getSender(), exit.getMessage()))
+			.setAction(exit -> TellService.sendMessage(exit.getContext().getSender(), "command-exception"))
 			.add();
 	
 		errorHandler.withHandler(Exception.class)
 			.setCriteria(StandardCriteria.INSTANCE_OF)
 			.skipIfHandled()
 			.setAction(exception -> {
+				// TODO notify the player
 				if (logger != null) {
 					logger.log(Level.SEVERE, "Command failed execution", exception);
 				}

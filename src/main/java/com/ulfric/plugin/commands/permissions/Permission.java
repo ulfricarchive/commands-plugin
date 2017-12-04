@@ -12,6 +12,6 @@ public @interface Permission {
 
 	String value();
 
-	String message() default "";
+	String message() default "command-missing-permission";
 
 }
