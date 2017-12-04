@@ -5,17 +5,17 @@ import java.lang.reflect.Modifier;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.google.common.base.Throwables;
 import com.ulfric.commons.bukkit.command.RunCommandCallback;
 import com.ulfric.dragoon.exception.Try;
 import com.ulfric.i18n.content.Details;
@@ -47,17 +47,15 @@ public abstract class Command implements Runnable {
 	}
 
 	protected final void internalError(String message, Throwable thrown) {
+		Objects.requireNonNull(message, "message");
+		Objects.requireNonNull(thrown, "thrown");
+
 		Details details = details();
 		details.add("error", thrown);
 		tell(message, details);
 
-		if (thrown != null) {
-			Logger logger = context.getLogger();
-			if (logger != null) {
-				logger.log(Level.SEVERE, message, thrown);
-			}
-			throw new RuntimeException(message, thrown); // TODO better handling - don't throw RTE
-		}
+		Throwables.throwIfUnchecked(thrown);
+		throw new RuntimeException(message, thrown);
 	}
 
 	protected final <T> Optional<T> ifPlayer(Function<Player, T> function) {

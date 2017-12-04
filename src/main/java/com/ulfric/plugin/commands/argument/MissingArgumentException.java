@@ -1,20 +1,20 @@
 package com.ulfric.plugin.commands.argument;
 
-import com.ulfric.plugin.commands.CommandException;
 import com.ulfric.plugin.commands.Context;
+import com.ulfric.plugin.commands.exception.CommandException;
 
 public class MissingArgumentException extends CommandException {
 
-	private String argumentMessage;
+	private ArgumentDefinition definition;
 
-	public MissingArgumentException(Context context, String name, String argumentMessage) {
-		super(context, name);
+	public MissingArgumentException(Context context, ArgumentDefinition definition) {
+		super(context);
 
-		this.argumentMessage = argumentMessage;
+		this.definition = definition;
 	}
 
-	public String getArgumentMessage() {
-		return argumentMessage;
+	public ArgumentDefinition getDefinition() {
+		return definition;
 	}
 
 }

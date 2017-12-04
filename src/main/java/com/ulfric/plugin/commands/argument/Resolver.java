@@ -1,7 +1,5 @@
 package com.ulfric.plugin.commands.argument;
 
-import com.ulfric.commons.collection.Computations;
-
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +9,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+
+import com.ulfric.commons.collection.Computations;
+import com.ulfric.plugin.commands.argument.defaults.IdentityResolver;
+import com.ulfric.plugin.commands.argument.defaults.IntegerResolver;
+import com.ulfric.plugin.commands.argument.defaults.MatchResolver;
+import com.ulfric.plugin.commands.argument.defaults.SlugResolver;
 
 public abstract class Resolver<T> implements Function<ResolutionRequest, T> {
 

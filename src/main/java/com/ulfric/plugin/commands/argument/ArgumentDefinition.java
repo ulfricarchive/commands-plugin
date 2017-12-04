@@ -2,18 +2,18 @@ package com.ulfric.plugin.commands.argument;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 
 import com.ulfric.commons.value.Bean;
 
-public class ArgumentDefinition extends Bean {
+public class ArgumentDefinition extends Bean { // TODO immutable
 
 	private String name;
 	private String message;
 	private Type type;
 	private Field field;
 	private Boolean optional;
-	private ExecutorService executor;
+	private Executor executor;
 
 	public String getName() {
 		return name;
@@ -55,11 +55,11 @@ public class ArgumentDefinition extends Bean {
 		this.optional = optional;
 	}
 
-	public ExecutorService getExecutor() {
+	public Executor getExecutor() {
 		return executor;
 	}
 
-	public void setExecutor(ExecutorService executor) {
+	public void setExecutor(Executor executor) {
 		this.executor = executor;
 	}
 

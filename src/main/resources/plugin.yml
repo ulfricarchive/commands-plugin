@@ -2,4 +2,4 @@ name: Commands
 main: com.ulfric.plugin.commands.CommandsPlugin
 version: 1.0.0
 author: Ulfric LLC
-depend: [Platform, Services, Broken, Tasks, Locale, Restrictions]
+depend: [Platform, Services, Broken, Tasks, Locale]
