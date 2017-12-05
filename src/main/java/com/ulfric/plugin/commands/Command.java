@@ -70,11 +70,13 @@ public abstract class Command implements Runnable, CommandExtension {
 				new RunCommandCallback(player, callback));
 	}
 
-	protected final UUID uniqueId() {
+	@Override
+	public final UUID uniqueId() {
 		return player().getUniqueId();
 	}
 
-	protected final Player player() {
+	@Override
+	public final Player player() {
 		return Context.getPlayer(context);
 	}
 

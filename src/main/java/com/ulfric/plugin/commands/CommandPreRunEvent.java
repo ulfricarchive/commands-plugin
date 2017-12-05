@@ -2,12 +2,13 @@ package com.ulfric.plugin.commands;
 
 import java.util.Objects;
 
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 import com.ulfric.plugin.commands.exception.CommandException;
 
-public class CommandPreRunEvent extends Event {
+public class CommandPreRunEvent extends Event implements Cancellable {
 
 	private static final HandlerList HANDLERS = new HandlerList();
 
@@ -48,6 +49,16 @@ public class CommandPreRunEvent extends Event {
 	@Override
 	public HandlerList getHandlers() {
 		return HANDLERS;
+	}
+
+	@Override
+	public boolean isCancelled() {
+		return getFailure() != null;
+	}
+
+	@Override
+	public void setCancelled(boolean cancel) {
+		throw new UnsupportedOperationException();
 	}
 
 }

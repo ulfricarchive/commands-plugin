@@ -198,7 +198,6 @@ public class Invoker implements CommandExecutor {
 
 		context.setSender(sender);
 		context.setArguments(resolveCommandToArgumentHierarchyPositions(label, args));
-		context.setCommandType(context.getArguments().getArguments().lastKey());
 		context.setExecutionId(UUID.randomUUID());
 
 		Invoker invoker = factory.request(Invoker.class, context.getArguments().getArguments().lastKey());
@@ -258,20 +257,15 @@ public class Invoker implements CommandExecutor {
 	}
 
 	private CompletableFuture<Void> handle(Context context) {
-		CommandException failure = callEvents(context);
-		if (failure != null) {
-			return FutureHelper.exceptionally(failure);
-		}
-
-		Class<? extends Command> command = context.getCommandType();
-		if (command == null) {
-			return FutureHelper.empty();
-		}
-
 		Command run = factory.request(command);
 
 		run.setContext(context);
 		context.setCommand(run);
+
+		CommandException failure = callEvents(context);
+		if (failure != null) {
+			return FutureHelper.exceptionally(failure);
+		}
 
 		return setupArguments(context)
 			.thenRunAsync(run, executor);

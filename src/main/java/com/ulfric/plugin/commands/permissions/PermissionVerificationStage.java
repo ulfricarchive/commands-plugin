@@ -6,15 +6,15 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.event.EventHandler;
 
 import com.ulfric.dragoon.stereotype.Stereotypes;
+import com.ulfric.plugin.commands.Command;
 import com.ulfric.plugin.commands.CommandPreRunEvent;
-import com.ulfric.plugin.commands.Stage;
+import com.ulfric.plugin.commands.stage.Stage;
 
 public class PermissionVerificationStage extends Stage<List<Permission>> {
 
 	@EventHandler(ignoreCancelled = true)
 	public void on(CommandPreRunEvent event) {
-		List<Permission> permissions = commandToContext.computeIfAbsent(event.getCommandType(),
-				command -> Stereotypes.getAll(command, Permission.class));
+		List<Permission> permissions = get(event.getCommandType());
 
 		CommandSender sender = event.getContext().getSender();
 		for (Permission permission : permissions) {
@@ -24,6 +24,11 @@ public class PermissionVerificationStage extends Stage<List<Permission>> {
 				return;
 			}
 		}
+	}
+
+	@Override
+	protected List<Permission> compute(Class<? extends Command> command) {
+		return Stereotypes.getAll(command, Permission.class);
 	}
 
 }

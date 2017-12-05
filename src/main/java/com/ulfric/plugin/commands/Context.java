@@ -23,7 +23,6 @@ public class Context extends Bean {
 
 	private CommandSender sender;
 	private Arguments arguments;
-	private Class<? extends Command> commandType;
 	private Command command;
 	private UUID executionId;
 
@@ -41,14 +40,6 @@ public class Context extends Bean {
 
 	public void setArguments(Arguments arguments) {
 		this.arguments = arguments;
-	}
-
-	public Class<? extends Command> getCommandType() {
-		return commandType;
-	}
-
-	public void setCommandType(Class<? extends Command> commandType) {
-		this.commandType = commandType;
 	}
 
 	public Command getCommand() {
