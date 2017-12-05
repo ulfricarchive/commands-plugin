@@ -19,6 +19,7 @@ import com.ulfric.plugin.commands.confirmation.ConfirmationStage;
 import com.ulfric.plugin.commands.exception.CommandChannel;
 import com.ulfric.plugin.commands.exception.CommandException;
 import com.ulfric.plugin.commands.exception.MustBePlayerException;
+import com.ulfric.plugin.commands.function.defaults.DefaultFunctionsContainer;
 import com.ulfric.plugin.commands.internal.Invoker;
 import com.ulfric.plugin.commands.internal.Registry;
 import com.ulfric.plugin.commands.internal.dragoon.CommandFeature;
@@ -45,6 +46,7 @@ public class CommandsContainer extends Container {
 		install(DefaultResolversContainer.class);
 		install(PermissionVerificationStage.class);
 		install(ConfirmationStage.class);
+		install(DefaultFunctionsContainer.class);
 
 		addBootHook(this::bindInvoker);
 		addShutdownHook(this::unbindInvoker);
