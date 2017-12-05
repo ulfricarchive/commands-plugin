@@ -14,6 +14,7 @@ import com.ulfric.dragoon.extension.postconstruct.PostConstruct;
 import com.ulfric.i18n.content.Details;
 import com.ulfric.plugin.commands.argument.MissingArgumentException;
 import com.ulfric.plugin.commands.argument.defaults.DefaultResolversContainer;
+import com.ulfric.plugin.commands.confirmation.ConfirmationRequiredException;
 import com.ulfric.plugin.commands.confirmation.ConfirmationStage;
 import com.ulfric.plugin.commands.exception.CommandChannel;
 import com.ulfric.plugin.commands.exception.CommandException;
@@ -70,6 +71,12 @@ public class CommandsContainer extends Container {
 			.setCriteria(StandardCriteria.EXACT_TYPE_MATCH)
 			.setAction(mustBePlayer ->
 				TellService.sendMessage(mustBePlayer.getContext().getSender(), "command-must-be-player"))
+			.add();
+
+		errorHandler.withHandler(ConfirmationRequiredException.class)
+			.setCriteria(StandardCriteria.EXACT_TYPE_MATCH)
+			.setAction(confirmation ->
+				TellService.sendMessage(confirmation.getContext().getSender(), confirmation.getConfirmationMessage()))
 			.add();
 	
 		errorHandler.withHandler(CommandException.class)

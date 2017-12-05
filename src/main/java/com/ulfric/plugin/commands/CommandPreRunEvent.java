@@ -2,7 +2,6 @@ package com.ulfric.plugin.commands;
 
 import java.util.Objects;
 
-import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
