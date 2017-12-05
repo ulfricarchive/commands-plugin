@@ -13,7 +13,7 @@ public class PermissionVerificationStage extends Stage<List<Permission>> {
 
 	@EventHandler(ignoreCancelled = true)
 	public void on(CommandPreRunEvent event) {
-		List<Permission> permissions = commandToContext.computeIfAbsent(event.getContext().getCommandType(),
+		List<Permission> permissions = commandToContext.computeIfAbsent(event.getCommandType(),
 				command -> Stereotypes.getAll(command, Permission.class));
 
 		CommandSender sender = event.getContext().getSender();

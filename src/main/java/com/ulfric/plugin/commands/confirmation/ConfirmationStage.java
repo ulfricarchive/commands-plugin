@@ -15,7 +15,7 @@ public class ConfirmationStage extends Stage<ConfirmationWithMessage> {
 
 	@EventHandler(ignoreCancelled = true)
 	public void on(CommandPreRunEvent event) {
-		ConfirmationWithMessage confirmation = commandToContext.computeIfAbsent(event.getContext().getCommandType(), command -> {
+		ConfirmationWithMessage confirmation = commandToContext.computeIfAbsent(event.getCommandType(), command -> {
 			RequireConfirmation context = Stereotypes.getFirst(command, RequireConfirmation.class);
 
 			ConfirmationWithMessage confirmationWithMessage = new ConfirmationWithMessage();
