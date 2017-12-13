@@ -5,9 +5,9 @@ import org.bukkit.entity.Player;
 
 import com.ulfric.i18n.function.Function;
 
-public class SenderToDisplayNameFunction extends Function<CommandSender> {
+public class CommandSenderToDisplayNameFunction extends Function<CommandSender> {
 
-	public SenderToDisplayNameFunction() {
+	public CommandSenderToDisplayNameFunction() {
 		super("displayName", CommandSender.class);
 	}
 

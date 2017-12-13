@@ -3,9 +3,9 @@ package com.ulfric.plugin.commands.function.defaults;
 import com.ulfric.i18n.function.Function;
 import com.ulfric.plugin.commands.Context;
 
-public class SenderFunction extends Function<Context> {
+public class ContextToCommandSenderFunction extends Function<Context> {
 
-	public SenderFunction() {
+	public ContextToCommandSenderFunction() {
 		super("sender", Context.class);
 	}
 
