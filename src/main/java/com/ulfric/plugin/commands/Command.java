@@ -115,4 +115,10 @@ public abstract class Command implements Runnable, CommandExtension {
 		this.context = context;
 	}
 
+	public void prerun() {
+	}
+
+	public void postrun() {
+	}
+
 }

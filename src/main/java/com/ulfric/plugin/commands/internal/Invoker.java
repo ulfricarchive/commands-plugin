@@ -69,6 +69,7 @@ public class Invoker implements CommandExecutor {
 
 	private Executor executor;
 	private Invoker parent;
+	private Invoker inherits;
 	private List<ArgumentDefinition> arguments;
 
 	public Invoker(Class<? extends Command> command) {
@@ -84,6 +85,7 @@ public class Invoker implements CommandExecutor {
 		parent = parent();
 		executor = executor(command);
 		parent = parent();
+		inherits = inherits();
 		arguments = arguments();
 	}
 
@@ -102,19 +104,28 @@ public class Invoker implements CommandExecutor {
 		return AsynchronousInterceptor.executor(factory, asynchronous.value());
 	}
 
-	private Invoker parent() {
-		Class<?> superClass = Classes.getNonDynamic(command.getSuperclass());
-		return firstInvoker(superClass);
-	}
-
-	private Invoker firstInvoker(Class<?> superClass) {
-		if (!Command.class.isAssignableFrom(superClass)) {
+	private Invoker inherits() {
+		Class<?> superCommand = command.getSuperclass();
+		if (Command.class == superCommand || !Command.class.isAssignableFrom(superCommand)) {
 			return null;
 		}
-		if (Modifier.isAbstract(superClass.getModifiers())) { // TODO static utility
-			return firstInvoker(superClass.getSuperclass());
+
+		return factory.request(Invoker.class, superCommand.asSubclass(Command.class));
+	}
+
+	private Invoker parent() {
+		Class<?> superCommand = Classes.getNonDynamic(command.getSuperclass());
+		return firstRunnableInvoker(superCommand);
+	}
+
+	private Invoker firstRunnableInvoker(Class<?> superCommand) {
+		if (!Command.class.isAssignableFrom(superCommand)) {
+			return null;
 		}
-		return factory.request(Invoker.class, superClass.asSubclass(Command.class));
+		if (Modifier.isAbstract(superCommand.getModifiers())) { // TODO static utility
+			return firstRunnableInvoker(superCommand.getSuperclass());
+		}
+		return factory.request(Invoker.class, superCommand.asSubclass(Command.class));
 	}
 
 	private String name() {
@@ -268,12 +279,14 @@ public class Invoker implements CommandExecutor {
 		}
 
 		return setupArguments(context)
-			.thenRunAsync(run, executor);
+			.thenRunAsync(run::prerun, executor)
+			.thenRun(run)
+			.thenRun(run::postrun);
 	}
 
 	private CommandException callEvents(Context context) {
-		if (parent != null) {
-			CommandException exception = parent.callEvents(context);
+		if (inherits != null) {
+			CommandException exception = inherits.callEvents(context);
 			if (exception != null) {
 				return exception;
 			}
@@ -286,10 +299,10 @@ public class Invoker implements CommandExecutor {
 
 	private CompletableFuture<Void> setupArguments(Context context) {
 		CompletableFuture<Void> future;
-		if (parent != null) {
-			future = parent.setupArguments(context);
+		if (inherits != null) {
+			future = inherits.setupArguments(context);
 		} else {
-			future = CompletableFuture.completedFuture(null);
+			future = FutureHelper.empty();
 		}
 
 		for (ArgumentDefinition definition : arguments) {
