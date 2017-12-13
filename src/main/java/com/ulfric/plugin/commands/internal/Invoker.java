@@ -69,7 +69,6 @@ public class Invoker implements CommandExecutor {
 
 	private Executor executor;
 	private Invoker parent;
-	private Invoker inherits;
 	private List<ArgumentDefinition> arguments;
 
 	public Invoker(Class<? extends Command> command) {
@@ -85,7 +84,6 @@ public class Invoker implements CommandExecutor {
 		parent = parent();
 		executor = executor(command);
 		parent = parent();
-		inherits = inherits();
 		arguments = arguments();
 	}
 
@@ -102,15 +100,6 @@ public class Invoker implements CommandExecutor {
 			return executor;
 		}
 		return AsynchronousInterceptor.executor(factory, asynchronous.value());
-	}
-
-	private Invoker inherits() {
-		Class<?> superCommand = command.getSuperclass();
-		if (Command.class == superCommand || !Command.class.isAssignableFrom(superCommand)) {
-			return null;
-		}
-
-		return factory.request(Invoker.class, superCommand.asSubclass(Command.class));
 	}
 
 	private Invoker parent() {
@@ -171,6 +160,11 @@ public class Invoker implements CommandExecutor {
 			definition.setType(field.getGenericType());
 			definition.setExecutor(executorOrDefault(field));
 			arguments.add(definition);
+		}
+
+		Class<?> superCommand = command.getSuperclass();
+		if (superCommand != Command.class && Modifier.isAbstract(superCommand.getModifiers())) {
+			arguments.addAll(factory.request(Invoker.class, superCommand).arguments);
 		}
 
 		return arguments;
@@ -285,8 +279,8 @@ public class Invoker implements CommandExecutor {
 	}
 
 	private CommandException callEvents(Context context) {
-		if (inherits != null) {
-			CommandException exception = inherits.callEvents(context);
+		if (parent != null) {
+			CommandException exception = parent.callEvents(context);
 			if (exception != null) {
 				return exception;
 			}
@@ -299,8 +293,8 @@ public class Invoker implements CommandExecutor {
 
 	private CompletableFuture<Void> setupArguments(Context context) {
 		CompletableFuture<Void> future;
-		if (inherits != null) {
-			future = inherits.setupArguments(context);
+		if (parent != null) {
+			future = parent.setupArguments(context);
 		} else {
 			future = FutureHelper.empty();
 		}
