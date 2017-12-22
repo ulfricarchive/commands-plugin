@@ -68,7 +68,7 @@ public class CommandsContainer extends Container {
 				TellService.sendMessage(requiredArgument.getContext().getSender(), requiredArgument.getDefinition().getMessage(),
 					Details.of("argument", requiredArgument.getDefinition())))
 			.add();
-	
+
 		errorHandler.withHandler(MustBePlayerException.class)
 			.setCriteria(StandardCriteria.EXACT_TYPE_MATCH)
 			.setAction(mustBePlayer ->
@@ -80,13 +80,13 @@ public class CommandsContainer extends Container {
 			.setAction(confirmation ->
 				TellService.sendMessage(confirmation.getContext().getSender(), confirmation.getConfirmationMessage()))
 			.add();
-	
+
 		errorHandler.withHandler(CommandException.class)
 			.setCriteria(StandardCriteria.INSTANCE_OF)
 			.skipIfHandled()
 			.setAction(exit -> TellService.sendMessage(exit.getContext().getSender(), "command-exception"))
 			.add();
-	
+
 		errorHandler.withHandler(Exception.class)
 			.setCriteria(StandardCriteria.INSTANCE_OF)
 			.skipIfHandled()

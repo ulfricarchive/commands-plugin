@@ -3,12 +3,12 @@ package com.ulfric.plugin.commands.function.defaults;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.ulfric.i18n.function.Function;
+import com.ulfric.plugin.locale.function.CommandSenderFunction;
 
-public class CommandSenderToDisplayNameFunction extends Function<CommandSender> {
+public class CommandSenderToDisplayNameFunction extends CommandSenderFunction {
 
 	public CommandSenderToDisplayNameFunction() {
-		super("displayName", CommandSender.class);
+		super("displayName");
 	}
 
 	@Override
