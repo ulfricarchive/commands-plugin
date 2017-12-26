@@ -3,7 +3,6 @@ package com.ulfric.plugin.commands;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.ulfric.broken.ErrorHandler;
 import com.ulfric.broken.StandardCriteria;
@@ -11,6 +10,7 @@ import com.ulfric.dragoon.ObjectFactory;
 import com.ulfric.dragoon.application.Container;
 import com.ulfric.dragoon.extension.inject.Inject;
 import com.ulfric.dragoon.extension.postconstruct.PostConstruct;
+import com.ulfric.dragoon.logging.Log;
 import com.ulfric.i18n.content.Details;
 import com.ulfric.plugin.commands.argument.MissingArgumentException;
 import com.ulfric.plugin.commands.argument.defaults.DefaultResolversContainer;
@@ -37,8 +37,8 @@ public class CommandsContainer extends Container {
 	@CommandChannel
 	private ErrorHandler errorHandler;
 
-	@Inject(optional = true)
-	private Logger logger;
+	@Inject
+	private Log logger;
 
 	public CommandsContainer() {
 		install(ResolverFeature.class);
@@ -92,9 +92,7 @@ public class CommandsContainer extends Container {
 			.skipIfHandled()
 			.setAction(exception -> {
 				// TODO notify the player
-				if (logger != null) {
-					logger.log(Level.SEVERE, "Command failed execution", exception);
-				}
+				logger.log(Level.SEVERE, "Command failed execution", exception);
 			})
 			.add();
 	}
