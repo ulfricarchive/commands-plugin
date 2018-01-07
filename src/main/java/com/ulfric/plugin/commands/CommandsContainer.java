@@ -3,6 +3,7 @@ package com.ulfric.plugin.commands;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.ulfric.broken.ErrorHandler;
 import com.ulfric.broken.StandardCriteria;
@@ -10,7 +11,6 @@ import com.ulfric.dragoon.ObjectFactory;
 import com.ulfric.dragoon.application.Container;
 import com.ulfric.dragoon.extension.inject.Inject;
 import com.ulfric.dragoon.extension.postconstruct.PostConstruct;
-import com.ulfric.dragoon.logging.Log;
 import com.ulfric.i18n.content.Details;
 import com.ulfric.plugin.commands.argument.MissingArgumentException;
 import com.ulfric.plugin.commands.argument.defaults.DefaultResolversContainer;
@@ -38,7 +38,7 @@ public class CommandsContainer extends Container {
 	private ErrorHandler errorHandler;
 
 	@Inject
-	private Log logger;
+	private Logger logger;
 
 	public CommandsContainer() {
 		install(ResolverFeature.class);
